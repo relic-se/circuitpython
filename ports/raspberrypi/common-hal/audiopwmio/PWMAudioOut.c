@@ -204,7 +204,8 @@ void common_hal_audiopwmio_pwmaudioout_play(audiopwmio_pwmaudioout_obj_t *self, 
         BITS_PER_SAMPLE,
         (uint32_t)tx_register,  // output register: PWM cc register
         0x3b + pacing_timer, // data request line
-        self->swap_channel);
+        self->swap_channel,
+        false); // record
 
     if (result == AUDIO_DMA_DMA_BUSY) {
         common_hal_audiopwmio_pwmaudioout_stop(self);

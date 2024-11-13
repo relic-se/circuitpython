@@ -118,6 +118,10 @@ static size_t audio_dma_convert_samples(audio_dma_t *dma, uint8_t *input, uint32
 
 // buffer_idx is 0 or 1.
 static void audio_dma_load_next_block(audio_dma_t *dma, size_t buffer_idx) {
+    if (dma->record) {
+        return;
+    }
+
     size_t dma_channel = dma->channel[buffer_idx];
 
     audioio_get_buffer_result_t get_buffer_result;
@@ -174,7 +178,8 @@ audio_dma_result audio_dma_setup_playback(
     uint8_t output_resolution,
     uint32_t output_register_address,
     uint8_t dma_trigger_source,
-    bool swap_channel) {
+    bool swap_channel,
+    bool record) {
 
     // Use two DMA channels to play because the DMA can't wrap to itself without the
     // buffer being power of two aligned.
@@ -204,6 +209,7 @@ audio_dma_result audio_dma_setup_playback(
     dma->sample_resolution = audiosample_bits_per_sample(sample);
     dma->output_register_address = output_register_address;
     dma->swap_channel = swap_channel;
+    dma->record = record;
 
     audiosample_reset_buffer(sample, single_channel_output, audio_channel);
 
@@ -262,14 +268,18 @@ audio_dma_result audio_dma_setup_playback(
         dma_channel_config c = dma_channel_get_default_config(dma->channel[i]);
         channel_config_set_transfer_data_size(&c, dma_size);
         channel_config_set_dreq(&c, dma_trigger_source);
-        channel_config_set_read_increment(&c, true);
-        channel_config_set_write_increment(&c, false);
+        channel_config_set_read_increment(&c, !record);
+        channel_config_set_write_increment(&c, record);
 
         // Chain to the other channel by default.
         channel_config_set_chain_to(&c, dma->channel[(i + 1) % 2]);
         dma_channel_set_config(dma->channel[i], &c, false /* trigger */);
 
-        dma_channel_set_write_addr(dma->channel[i], (void *)output_register_address, false /* trigger */);
+        if (!record) {
+            dma_channel_set_write_addr(dma->channel[i], (void *)output_register_address, false /* trigger */);
+        } else {
+            dma_channel_set_read_addr(dma->channel[i], (void *)output_register_address, false /* trigger */);
+        }
     }
 
     // We keep the audio_dma_t for internal use and the sample as a root pointer because it
