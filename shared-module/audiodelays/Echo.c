@@ -134,7 +134,8 @@ void recalculate_delay(audiodelays_echo_obj_t *self, mp_float_t f_delay_ms) {
         self->echo_buffer_len = self->max_echo_buffer_len;
     } else {
         // Calculate the current echo buffer length in bytes and limit to valid range
-        self->echo_buffer_len = (uint32_t)MIN(MAX((self->base.sample_rate / MICROPY_FLOAT_CONST(1000.0) * f_delay_ms) * (self->base.channel_count * sizeof(uint16_t)), self->base.channel_count * sizeof(uint16_t)), self->max_echo_buffer_len);
+        self->echo_buffer_len = MIN(MAX((uint32_t)(self->base.sample_rate / MICROPY_FLOAT_CONST(1000.0) * f_delay_ms) * (self->base.channel_count * sizeof(uint16_t)), self->base.channel_count * sizeof(uint16_t)), self->max_echo_buffer_len);
+
         // Clear the now unused part of the buffer or some weird artifacts appear
         memset(self->echo_buffer + self->echo_buffer_len, 0, self->max_echo_buffer_len - self->echo_buffer_len);
     }
