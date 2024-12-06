@@ -163,6 +163,12 @@ bool common_hal_audiodelays_echo_get_freq_shift(audiodelays_echo_obj_t *self) {
 }
 
 void common_hal_audiodelays_echo_set_freq_shift(audiodelays_echo_obj_t *self, bool freq_shift) {
+    // Clear the echo buffer and reset buffer position if changing freq_shift modes
+    if (self->freq_shift != freq_shift) {
+        memset(self->echo_buffer, 0, self->max_echo_buffer_len);
+        self->echo_buffer_pos = 0;
+        self->echo_buffer_right_pos = 0;
+    }
     self->freq_shift = freq_shift;
     uint32_t delay_ms = (uint32_t)synthio_block_slot_get(&self->delay_ms);
     recalculate_delay(self, delay_ms);
