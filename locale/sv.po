@@ -199,6 +199,10 @@ msgstr "%q måste vara <= %u"
 msgid "%q must be >= %d"
 msgstr "%q måste vara >= %d"
 
+#: shared-module/audiofilters/Filter.c
+msgid "%q must be a %q object, %q, or %q"
+msgstr ""
+
 #: shared-bindings/analogbufio/BufferedIn.c
 msgid "%q must be a bytearray or array of type 'H' or 'B'"
 msgstr "%q måste vara en bytearray eller array av typen 'H' eller 'B'"
@@ -1301,6 +1305,7 @@ msgid "Invalid socket for TLS"
 msgstr "Ogiltig socket för TLS"
 
 #: ports/espressif/common-hal/espidf/__init__.c
+#: ports/nordic/common-hal/_bleio/__init__.c
 msgid "Invalid state"
 msgstr "Ogiltigt tillstånd"
 
@@ -2007,7 +2012,8 @@ msgstr "Ovanstående undantag var den direkta orsaken till följande undantag:"
 msgid "The length of rgb_pins must be 6, 12, 18, 24, or 30"
 msgstr "Längden på rgb_pins vara 6, 12, 18, 24 eller 30"
 
-#: shared-module/audiodelays/Echo.c shared-module/audiomixer/MixerVoice.c
+#: shared-module/audiodelays/Echo.c shared-module/audiofilters/Filter.c
+#: shared-module/audiomixer/MixerVoice.c
 msgid "The sample's %q does not match"
 msgstr ""
 
@@ -2538,6 +2544,10 @@ msgstr "Ogiltig typkod"
 msgid "binary op %q not implemented"
 msgstr "binär op %q är inte implementerad"
 
+#: ports/espressif/common-hal/audiobusio/PDMIn.c
+msgid "bit_depth must be 8, 16, 24, or 32."
+msgstr ""
+
 #: shared-module/bitmapfilter/__init__.c
 msgid "bitmap size and depth must match"
 msgstr ""
@@ -2550,7 +2560,8 @@ msgstr "bitmappsstorlekar måste matcha"
 msgid "bits must be 32 or less"
 msgstr "bits måste vara 32 eller färre"
 
-#: shared-bindings/audiodelays/Echo.c shared-bindings/audiomixer/Mixer.c
+#: shared-bindings/audiodelays/Echo.c shared-bindings/audiofilters/Filter.c
+#: shared-bindings/audiomixer/Mixer.c
 msgid "bits_per_sample must be 8 or 16"
 msgstr "bits_per_sample måste vara 8 eller 16"
 
@@ -2631,7 +2642,7 @@ msgstr "kan inte tilldela uttryck"
 msgid "can't cancel self"
 msgstr "kan inte avbryta sig själv"
 
-#: shared-module/adafruit_pixelbuf/PixelBuf.c
+#: py/obj.c shared-module/adafruit_pixelbuf/PixelBuf.c
 msgid "can't convert %q to %q"
 msgstr "kan inte konvertera %q till %q"
 

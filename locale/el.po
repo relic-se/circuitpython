@@ -202,6 +202,10 @@ msgstr "%q πρέπει να είναι <= %u"
 msgid "%q must be >= %d"
 msgstr "%q πρέπει να είναι >= %d"
 
+#: shared-module/audiofilters/Filter.c
+msgid "%q must be a %q object, %q, or %q"
+msgstr ""
+
 #: shared-bindings/analogbufio/BufferedIn.c
 msgid "%q must be a bytearray or array of type 'H' or 'B'"
 msgstr "%q πρέπει να είναι bytearray ή array τύπου 'H' ή 'B'"
@@ -1300,6 +1304,7 @@ msgid "Invalid socket for TLS"
 msgstr ""
 
 #: ports/espressif/common-hal/espidf/__init__.c
+#: ports/nordic/common-hal/_bleio/__init__.c
 msgid "Invalid state"
 msgstr ""
 
@@ -1998,7 +2003,8 @@ msgstr ""
 msgid "The length of rgb_pins must be 6, 12, 18, 24, or 30"
 msgstr ""
 
-#: shared-module/audiodelays/Echo.c shared-module/audiomixer/MixerVoice.c
+#: shared-module/audiodelays/Echo.c shared-module/audiofilters/Filter.c
+#: shared-module/audiomixer/MixerVoice.c
 msgid "The sample's %q does not match"
 msgstr ""
 
@@ -2520,6 +2526,10 @@ msgstr ""
 msgid "binary op %q not implemented"
 msgstr ""
 
+#: ports/espressif/common-hal/audiobusio/PDMIn.c
+msgid "bit_depth must be 8, 16, 24, or 32."
+msgstr ""
+
 #: shared-module/bitmapfilter/__init__.c
 msgid "bitmap size and depth must match"
 msgstr ""
@@ -2532,7 +2542,8 @@ msgstr ""
 msgid "bits must be 32 or less"
 msgstr ""
 
-#: shared-bindings/audiodelays/Echo.c shared-bindings/audiomixer/Mixer.c
+#: shared-bindings/audiodelays/Echo.c shared-bindings/audiofilters/Filter.c
+#: shared-bindings/audiomixer/Mixer.c
 msgid "bits_per_sample must be 8 or 16"
 msgstr ""
 
@@ -2613,7 +2624,7 @@ msgstr ""
 msgid "can't cancel self"
 msgstr ""
 
-#: shared-module/adafruit_pixelbuf/PixelBuf.c
+#: py/obj.c shared-module/adafruit_pixelbuf/PixelBuf.c
 msgid "can't convert %q to %q"
 msgstr ""
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2024-10-22 01:04+0000\n"
+"PO-Revision-Date: 2024-12-04 13:00+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: none\n"
 "Language: en_GB\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.8-rc\n"
+"X-Generator: Weblate 5.9-dev\n"
 
 #: main.c
 msgid ""
@@ -199,6 +199,10 @@ msgstr "%q must be <= %u"
 #: py/argcheck.c
 msgid "%q must be >= %d"
 msgstr "%q must be >= %d"
+
+#: shared-module/audiofilters/Filter.c
+msgid "%q must be a %q object, %q, or %q"
+msgstr "%q must be a %q object, %q, or %q"
 
 #: shared-bindings/analogbufio/BufferedIn.c
 msgid "%q must be a bytearray or array of type 'H' or 'B'"
@@ -1293,6 +1297,7 @@ msgid "Invalid socket for TLS"
 msgstr "Invalid socket for TLS"
 
 #: ports/espressif/common-hal/espidf/__init__.c
+#: ports/nordic/common-hal/_bleio/__init__.c
 msgid "Invalid state"
 msgstr "Invalid state"
 
@@ -1996,7 +2001,8 @@ msgstr "The above exception was the direct cause of the following exception:"
 msgid "The length of rgb_pins must be 6, 12, 18, 24, or 30"
 msgstr "The length of rgb_pins must be 6, 12, 18, 24, or 30"
 
-#: shared-module/audiodelays/Echo.c shared-module/audiomixer/MixerVoice.c
+#: shared-module/audiodelays/Echo.c shared-module/audiofilters/Filter.c
+#: shared-module/audiomixer/MixerVoice.c
 msgid "The sample's %q does not match"
 msgstr "The sample's %q does not match"
 
@@ -2527,6 +2533,10 @@ msgstr "bad typecode"
 msgid "binary op %q not implemented"
 msgstr "binary op %q not implemented"
 
+#: ports/espressif/common-hal/audiobusio/PDMIn.c
+msgid "bit_depth must be 8, 16, 24, or 32."
+msgstr "bit_depth must be 8, 16, 24, or 32."
+
 #: shared-module/bitmapfilter/__init__.c
 msgid "bitmap size and depth must match"
 msgstr "bitmap size and depth must match"
@@ -2539,7 +2549,8 @@ msgstr "bitmap sizes must match"
 msgid "bits must be 32 or less"
 msgstr "bits must be 32 or less"
 
-#: shared-bindings/audiodelays/Echo.c shared-bindings/audiomixer/Mixer.c
+#: shared-bindings/audiodelays/Echo.c shared-bindings/audiofilters/Filter.c
+#: shared-bindings/audiomixer/Mixer.c
 msgid "bits_per_sample must be 8 or 16"
 msgstr "bits_per_sample must be 8 or 16"
 
@@ -2620,7 +2631,7 @@ msgstr "Can't assign to expression"
 msgid "can't cancel self"
 msgstr "can't cancel self"
 
-#: shared-module/adafruit_pixelbuf/PixelBuf.c
+#: py/obj.c shared-module/adafruit_pixelbuf/PixelBuf.c
 msgid "can't convert %q to %q"
 msgstr "Can't convert %q to %q"
 

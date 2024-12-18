@@ -6,26 +6,6 @@
 
 include ../../py/circuitpy_mkenv.mk
 
-ifeq ($(IDF_TARGET),esp32c2)
-IDF_TARGET_ARCH = riscv
-CROSS_COMPILE = riscv32-esp-elf-
-else ifeq ($(IDF_TARGET),esp32c3)
-IDF_TARGET_ARCH = riscv
-CROSS_COMPILE = riscv32-esp-elf-
-else ifeq ($(IDF_TARGET),esp32p4)
-IDF_TARGET_ARCH = riscv
-CROSS_COMPILE = riscv32-esp-elf-
-else ifeq ($(IDF_TARGET),esp32c6)
-IDF_TARGET_ARCH = riscv
-CROSS_COMPILE = riscv32-esp-elf-
-else ifeq ($(IDF_TARGET),esp32h2)
-IDF_TARGET_ARCH = riscv
-CROSS_COMPILE = riscv32-esp-elf-
-else
-IDF_TARGET_ARCH = xtensa
-CROSS_COMPILE = xtensa-$(IDF_TARGET)-elf-
-endif
-
 ifeq ($(IDF_TARGET),esp32s3)
 BT_IDF_TARGET = esp32c3
 else
@@ -95,6 +75,7 @@ INC += \
 	-isystem esp-idf/components/esp_hw_support/dma/include \
 	-isystem esp-idf/components/esp_hw_support/include \
 	-isystem esp-idf/components/esp_hw_support/include/soc \
+	-isystem esp-idf/components/esp_mm/include \
 	-isystem esp-idf/components/esp_netif/include \
 	-isystem esp-idf/components/esp_partition/include \
 	-isystem esp-idf/components/esp_pm/include \
@@ -412,7 +393,9 @@ SRC_C += peripherals/touch.c
 endif
 
 ifneq ($(CIRCUITPY_USB_DEVICE),0)
-SRC_C += lib/tinyusb/src/portable/espressif/esp32sx/dcd_esp32sx.c
+SRC_C += \
+	lib/tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c \
+	lib/tinyusb/src/portable/synopsys/dwc2/dwc2_common.c
 endif
 
 ifneq ($(CIRCUITPY_AUDIOBUSIO),0)
@@ -766,6 +749,7 @@ endif
 
 UF2_FAMILY_ID_esp32s2 = 0xbfdd4eee
 UF2_FAMILY_ID_esp32s3 = 0xc47e5767
+UF2_FAMILY_ID_esp32p4 = 0x540ddf62
 
 $(BUILD)/firmware.uf2: $(BUILD)/circuitpython-firmware.bin
 	$(STEPECHO) "Create $@"

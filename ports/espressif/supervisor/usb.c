@@ -94,7 +94,14 @@ void init_usb_hardware(void) {
     // Configure USB PHY
     usb_phy_config_t phy_conf = {
         .controller = USB_PHY_CTRL_OTG,
+        .target = USB_PHY_TARGET_INT,
+
         .otg_mode = USB_OTG_MODE_DEVICE,
+        #ifdef CONFIG_IDF_TARGET_ESP32P4
+        .otg_speed = USB_PHY_SPEED_HIGH,
+        #else
+        .otg_speed = USB_PHY_SPEED_FULL,
+        #endif
     };
     usb_new_phy(&phy_conf, &phy_hdl);
 
