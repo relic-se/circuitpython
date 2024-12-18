@@ -211,7 +211,7 @@ void common_hal_audiobusio_i2sin_construct(audiobusio_i2sin_obj_t *self,
         data, 1, // in pins
         0, 0, // in pulls
         NULL, 0, 0, 0x1f, // set pins
-        sideset_pin, 2, 0, 0x1f, // sideset pins
+        sideset_pin, 2, false, 0, 0x1f, // sideset pins
         false, // No sideset enable
         NULL, PULL_NONE, // jump pin
         0, // wait gpio pins
@@ -268,11 +268,7 @@ void audiobusio_i2sin_reset_buffer(audiobusio_i2sin_obj_t *self,
 
     common_hal_rp2pio_statemachine_restart(&self->state_machine);
 
-    // Send bit width
-    const uint8_t bit_width_data[1] = { self->bits_per_sample };
-    common_hal_rp2pio_statemachine_write(&self->state_machine, bit_width_data, 1, 1, false);
-
-    audio_dma_result result = audio_dma_setup_playback(
+    audio_dma_result result = audio_dma_setup_record(
         &self->dma,
         &self,
         true,
@@ -280,10 +276,9 @@ void audiobusio_i2sin_reset_buffer(audiobusio_i2sin_obj_t *self,
         channel, // audio channel
         true, // output signed
         self->bits_per_sample, // output resolution
-        (uint32_t)&self->state_machine.pio->rxf[self->state_machine.state_machine],  // output register
+        (uint32_t)&self->state_machine.pio->rxf[self->state_machine.state_machine],  // input register
         self->state_machine.rx_dreq, // data request line
-        false, // swap channel
-        true); // record
+        false); // swap channel
 
     if (result == AUDIO_DMA_DMA_BUSY) {
         common_hal_rp2pio_statemachine_stop(&self->state_machine);
@@ -300,8 +295,15 @@ audioio_get_buffer_result_t audiobusio_i2sin_get_buffer(audiobusio_i2sin_obj_t *
     uint8_t **buffer,
     uint32_t *buffer_length) {
 
-    // TODO
-    return GET_BUFFER_DONE;
+    // TODO: single_channel_output
+
+    if (!audio_dma_has_buffer(&self->dma)) {
+        return GET_BUFFER_ERROR;
+    }
+
+    *buffer_length = self->buffer_size;
+    *buffer = audio_dma_get_buffer(&self->dma);
+    return GET_BUFFER_MORE_DATA;
 }
 
 void audiobusio_i2sin_get_buffer_structure(audiobusio_i2sin_obj_t *self, bool single_channel_output,
