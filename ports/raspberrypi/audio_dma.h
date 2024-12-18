@@ -36,7 +36,7 @@ typedef struct {
     bool playing_in_progress;
     bool recording_in_progress;
     bool swap_channel;
-    uint8_t last_record;
+    uint8_t input_index;
 } audio_dma_t;
 
 typedef enum {

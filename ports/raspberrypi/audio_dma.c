@@ -411,7 +411,7 @@ audio_dma_result audio_dma_setup(
             irq_set_mask_enabled(1 << DMA_IRQ_1, true);
         }
 
-        dma->last_record = -1;
+        dma->input_index = -1;
         dma->recording_in_progress = true;
         dma_channel_start(dma->input_channel[0]);
     }
@@ -671,16 +671,16 @@ bool audio_dma_get_recording(audio_dma_t *dma) {
 }
 
 uint8_t *audio_dma_get_buffer(audio_dma_t *dma) {
-    if (!dma->input_register_address || dma->last_record >= 2) {
+    if (!dma->input_register_address || dma->input_index >= 2) {
         return NULL;
     }
-    uint8_t *buffer = dma->input_buffer[dma->last_record];
-    dma->last_record = -1;
+    uint8_t *buffer = dma->input_buffer[dma->input_index];
+    dma->input_index = -1;
     return buffer;
 }
 
 bool audio_dma_has_buffer(audio_dma_t *dma) {
-    return dma->input_register_address && dma->last_record < 2;
+    return dma->input_register_address && dma->input_index < 2;
 }
 
 // WARN(tannewt): DO NOT print from here, or anything it calls. Printing calls
@@ -751,8 +751,8 @@ void __not_in_flash_func(isr_dma_1)(void) {
         dma_hw->ints1 = mask;
         if (MP_STATE_PORT(recording_audio)[i] != NULL) {
             audio_dma_t *dma = MP_STATE_PORT(recording_audio)[i];
-            // Rotate buffer to continue recording.
-            dma->last_record = (uint8_t)(i != dma->input_channel[0]);
+            // Update last recorded buffer.
+            dma->input_index = (uint8_t)(i != dma->input_channel[0]);
         }
         if (MP_STATE_PORT(background_pio)[i] != NULL) {
             rp2pio_statemachine_obj_t *pio = MP_STATE_PORT(background_pio)[i];
