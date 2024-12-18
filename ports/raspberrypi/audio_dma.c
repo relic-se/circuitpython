@@ -243,7 +243,9 @@ audio_dma_result audio_dma_setup(
     dma->input_register_address = input_register_address;
     dma->swap_channel = swap_channel;
 
-    audiosample_reset_buffer(sample, single_channel_output, audio_channel);
+    if (output_register_address) {
+        audiosample_reset_buffer(sample, single_channel_output, audio_channel);
+    }
 
 
     bool single_buffer;  // True if data fits in one single buffer.
