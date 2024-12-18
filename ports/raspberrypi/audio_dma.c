@@ -755,6 +755,7 @@ void __not_in_flash_func(isr_dma_1)(void) {
             audio_dma_t *dma = MP_STATE_PORT(recording_audio)[i];
             // Update last recorded buffer.
             dma->input_index = (uint8_t)(i != dma->input_channel[0]);
+            // Reset destination buffer for the dma channel.
             dma_channel_set_write_addr(i, dma->input_buffer[dma->input_index], false /* trigger */);
             dma_channel_set_trans_count(i, dma->input_buffer_length[dma->input_index] / dma->output_size, false /* trigger */);
         }

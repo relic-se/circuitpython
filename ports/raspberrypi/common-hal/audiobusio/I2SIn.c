@@ -268,6 +268,10 @@ void audiobusio_i2sin_reset_buffer(audiobusio_i2sin_obj_t *self,
 
     common_hal_rp2pio_statemachine_restart(&self->state_machine);
 
+    // Send bit width
+    const uint8_t bit_width_data[1] = { self->bits_per_sample };
+    common_hal_rp2pio_statemachine_write(&self->state_machine, bit_width_data, 1, 1, false);
+
     audio_dma_result result = audio_dma_setup_record(
         &self->dma,
         self,
