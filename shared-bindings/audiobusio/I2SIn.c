@@ -52,17 +52,6 @@
 //|           mic = audiobusio.I2SIn(board.GP0, board.GP1, board.GP2, channel_count=1, sample_rate=16000)
 //|           dac = audiopwmio.PWMAudioOut(board.GP3)
 //|           mic.play(output)
-//|
-//|         Recording samples to a buffer::
-//|
-//|           import array
-//|           import audiobusio
-//|           import board
-//|
-//|           # Prepare a buffer to record into.
-//|           b = array.array("h", [0] * 1024)
-//|           with audiobusio.I2SIn(board.GP0, board.GP1, board.GP2, channel_count=1, sample_rate=16000) as mic:
-//|               mic.record(b, len(b))
 //|         """
 //|     ...
 static mp_obj_t audiobusio_i2sin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
@@ -113,12 +102,6 @@ static mp_obj_t audiobusio_i2sin_deinit(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(audiobusio_i2sin_deinit_obj, audiobusio_i2sin_deinit);
 
-static void check_for_deinit(audiobusio_i2sin_obj_t *self) {
-    if (common_hal_audiobusio_i2sin_deinited(self)) {
-        raise_deinited_error();
-    }
-}
-
 //|     def __enter__(self) -> I2SIn:
 //|         """No-op used by Context Managers."""
 //|         ...
@@ -127,34 +110,13 @@ static void check_for_deinit(audiobusio_i2sin_obj_t *self) {
 //|     def __exit__(self) -> None:
 //|         """Automatically deinitializes the hardware when exiting a context."""
 //|         ...
+//|
 static mp_obj_t audiobusio_i2sin_obj___exit__(size_t n_args, const mp_obj_t *args) {
     (void)n_args;
     common_hal_audiobusio_i2sin_deinit(args[0]);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(audiobusio_i2sin___exit___obj, 4, 4, audiobusio_i2sin_obj___exit__);
-
-//|     def record(self, destination: WriteableBuffer, destination_length: int) -> None:
-//|         """Records destination_length bytes of samples to destination. This is
-//|         blocking.
-//|
-//|         An IOError may be raised when the destination is too slow to record the
-//|         audio at the given rate. For internal flash, writing all 1s to the file
-//|         before recording is recommended to speed up writes.
-//|
-//|         :return: The number of samples recorded. If this is less than ``destination_length``,
-//|           some samples were missed due to processing time."""
-//|         ...
-//|
-static mp_obj_t audiobusio_i2sin_record(mp_obj_t self_in, mp_obj_t destination, mp_obj_t destination_length) {
-    audiobusio_i2sin_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    check_for_deinit(self);
-
-    // TODO
-    mp_raise_NotImplementedError_varg(MP_ERROR_TEXT("%q"), MP_QSTR_record);
-    return mp_const_none;
-}
-static MP_DEFINE_CONST_FUN_OBJ_3(audiobusio_i2sin_record_obj, audiobusio_i2sin_record);
 
 #endif // CIRCUITPY_AUDIOBUSIO_I2SIN
 
@@ -164,7 +126,6 @@ static const mp_rom_map_elem_t audiobusio_i2sin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&audiobusio_i2sin_deinit_obj) },
     { MP_ROM_QSTR(MP_QSTR___enter__), MP_ROM_PTR(&default___enter___obj) },
     { MP_ROM_QSTR(MP_QSTR___exit__), MP_ROM_PTR(&audiobusio_i2sin___exit___obj) },
-    { MP_ROM_QSTR(MP_QSTR_record), MP_ROM_PTR(&audiobusio_i2sin_record_obj) },
     #endif // CIRCUITPY_AUDIOBUSIO_I2SIN
 };
 static MP_DEFINE_CONST_DICT(audiobusio_i2sin_locals_dict, audiobusio_i2sin_locals_dict_table);
