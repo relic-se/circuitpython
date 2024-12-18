@@ -57,6 +57,7 @@
 static mp_obj_t audiobusio_i2sin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     #if !CIRCUITPY_AUDIOBUSIO_I2SIN
     mp_raise_NotImplementedError_varg(MP_ERROR_TEXT("%q"), MP_QSTR_I2SIn);
+    return NULL;                // Not reachable.
     #else
     enum { ARG_bit_clock, ARG_word_select, ARG_data, ARG_buffer_size, ARG_channel_count, ARG_sample_rate, ARG_bits_per_sample, ARG_samples_signed };
     static const mp_arg_t allowed_args[] = {

@@ -270,7 +270,7 @@ void audiobusio_i2sin_reset_buffer(audiobusio_i2sin_obj_t *self,
 
     audio_dma_result result = audio_dma_setup_record(
         &self->dma,
-        &self,
+        self,
         true,
         single_channel_output, // single channel
         channel, // audio channel
