@@ -343,6 +343,8 @@ audio_dma_result audio_dma_setup(
             dma_channel_set_config(dma->input_channel[i], &c, false /* trigger */);
 
             dma_channel_set_read_addr(dma->input_channel[i], (void *)input_register_address, false /* trigger */);
+            dma_channel_set_write_addr(dma->input_channel[i], dma->input_buffer[i], false /* trigger */);
+            dma_channel_set_trans_count(dma->input_channel[i], dma->input_buffer_length[i] / dma->output_size, false /* trigger */);
         }
     }
 
@@ -753,6 +755,8 @@ void __not_in_flash_func(isr_dma_1)(void) {
             audio_dma_t *dma = MP_STATE_PORT(recording_audio)[i];
             // Update last recorded buffer.
             dma->input_index = (uint8_t)(i != dma->input_channel[0]);
+            dma_channel_set_write_addr(i, dma->input_buffer[dma->input_index], false /* trigger */);
+            dma_channel_set_trans_count(i, dma->input_buffer_length[dma->input_index] / dma->output_size, false /* trigger */);
         }
         if (MP_STATE_PORT(background_pio)[i] != NULL) {
             rp2pio_statemachine_obj_t *pio = MP_STATE_PORT(background_pio)[i];
