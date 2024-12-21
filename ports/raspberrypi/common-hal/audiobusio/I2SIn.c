@@ -301,8 +301,9 @@ audioio_get_buffer_result_t audiobusio_i2sin_get_buffer(audiobusio_i2sin_obj_t *
 
     // TODO: single_channel_output
 
-    if (!audio_dma_has_buffer(&self->dma)) {
-        return GET_BUFFER_ERROR;
+    // Do other things while we wait for the buffer to fill.
+    while (!audio_dma_has_buffer(&self->dma)) {
+        RUN_BACKGROUND_TASKS;
     }
 
     *buffer_length = self->buffer_size;
