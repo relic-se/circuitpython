@@ -19,27 +19,27 @@
 #include "audio_dma.h"
 
 const uint16_t i2sin_program_mono[] = {
-//     pull block   side 0b11 ; Load OSR with bits_per_sample
+//     pull block   side 0b11 ; Load OSR with bits_per_sample-2
     0x98a0,
-//     mov x osr    side 0b11 ; Save the value in x
-    0xb827,
+//     out y 8      side 0b11 ; Save the value in y
+    0x7848,
 //     nop          side 0b01
     0xa842,
-//     mov y x      side 0b01
-    0xa841,
+//     mov x y      side 0b01
+    0xa822,
 // lbit:
 //     nop          side 0b00 [1]
     0xa142,
 //     in pins 1    side 0b01
     0x4801,
-//     jmp y-- lbit side 0b01
-    0x0884,
+//     jmp x-- lbit side 0b01
+    0x0844,
 //     nop          side 0b10 [1]
     0xb142,
 //     in pins 1    side 0b11
     0x5801,
-//     mov y x      side 0b11
-    0xb841,
+//     mov x y      side 0b11
+    0xb822,
 // rbit:
 //     nop          side 0b10 [1]
     0xb142,
@@ -54,27 +54,27 @@ const uint16_t i2sin_program_mono[] = {
 };
 
 const uint16_t i2sin_program_mono_swap[] = {
-//     pull block   side 0b11 ; Load OSR with bits_per_sample
+//     pull block   side 0b11 ; Load OSR with bits_per_sample-2
     0x98a0,
-//     mov x osr    side 0b11 ; Save the value in x
-    0xb827,
+//     out y 8      side 0b11 ; Save the value in y
+    0x7848,
 //     nop          side 0b10
     0xb042,
-//     mov y x      side 0b10
-    0xb041,
+//     mov x y      side 0b10
+    0xb022,
 // lbit:
 //     nop          side 0b00 [1]
     0xa142,
 //     in pins 1    side 0b10
     0x5001,
-//     jmp y-- lbit side 0b10
-    0x1084,
+//     jmp x-- lbit side 0b10
+    0x1044,
 //     nop          side 0b01 [1]
     0xa942,
 //     in pins 1    side 0b11
     0x5801,
-//     mov y x      side 0b11
-    0xb841,
+//     mov x y      side 0b11
+    0xb822,
 // rbit:
 //     nop          side 0b01 [1]
     0xa942,
@@ -92,27 +92,27 @@ const uint16_t i2sin_program_stereo[] = {
 // ;                       /--- LRCLK
 // ;                       |/-- BCLK
 // ;                       ||
-//     pull block   side 0b11 ; Load OSR with bits_per_sample
+//     pull block   side 0b11 ; Load OSR with bits_per_sample-2
     0x98a0,
-//     mov x osr    side 0b11 ; Save the value in x
-    0xb827,
+//     out y 8      side 0b11 ; Save the value in y
+    0x7848,
 //     nop          side 0b01
     0xa842,
-//     mov y x      side 0b01
-    0xa841,
+//     mov x y      side 0b01
+    0xa822,
 // lbit:
 //     nop          side 0b00 [1]
     0xa142,
 //     in pins 1    side 0b01
     0x4801,
-//     jmp y-- lbit side 0b01
-    0x0884,
+//     jmp x-- lbit side 0b01
+    0x0844,
 //     nop          side 0b10 [1]
     0xb142,
 //     in pins 1    side 0b11
     0x5801,
-//     mov y x      side 0b11
-    0xb841,
+//     mov x y      side 0b11
+    0xb822,
 // rbit:
 //     nop          side 0b10 [1]
     0xb142,
@@ -130,27 +130,27 @@ const uint16_t i2sin_program_stereo_swap[] = {
 // ;                       /--- LRCLK
 // ;                       |/-- BCLK
 // ;                       ||
-//     pull block   side 0b11 ; Load OSR with bits_per_sample
+//     pull block   side 0b11 ; Load OSR with bits_per_sample-2
     0x98a0,
-//     mov x osr    side 0b11 ; Save the value in x
-    0xb827,
+//     out y 8      side 0b11 ; Save the value in y
+    0x7848,
 //     nop          side 0b10
     0xb042,
-//     mov y x      side 0b10
-    0xb041,
+//     mov x y      side 0b10
+    0xb022,
 // lbit:
 //     nop          side 0b00 [1]
     0xa142,
 //     in pins 1    side 0b10
     0x5001,
-//     jmp y-- lbit side 0b10
-    0x1084,
+//     jmp x-- lbit side 0b10
+    0x1044,
 //     nop          side 0b01 [1]
     0xa942,
 //     in pins 1    side 0b11
     0x5801,
-//     mov y x      side 0b11
-    0xb841,
+//     mov x y      side 0b11
+    0xb822,
 // rbit:
 //     nop          side 0b01 [1]
     0xa942,
@@ -207,10 +207,10 @@ void common_hal_audiobusio_i2sin_construct(audiobusio_i2sin_obj_t *self,
         sample_rate * bits_per_sample * 2 * 4, // Frequency based on sample rate and bit width
         NULL, 0, // init
         NULL, 0, // may_exec
-        NULL, 1, 0, 0xffffffff, // out pin
+        NULL, 1, 0, 0, // out pin
         data, 1, // in pins
         0, 0, // in pulls
-        NULL, 0, 0, 0x1f, // set pins
+        NULL, 1, 0, 0, // set pins
         sideset_pin, 2, false, 0, 0x1f, // sideset pins
         false, // No sideset enable
         NULL, PULL_NONE, // jump pin
@@ -269,7 +269,7 @@ void audiobusio_i2sin_reset_buffer(audiobusio_i2sin_obj_t *self,
     common_hal_rp2pio_statemachine_restart(&self->state_machine);
 
     // Send bit width
-    const uint8_t bit_width_data[1] = { self->bits_per_sample };
+    const uint8_t bit_width_data[1] = { self->bits_per_sample - 2 };
     common_hal_rp2pio_statemachine_write(&self->state_machine, bit_width_data, 1, 1, false);
 
     audio_dma_result result = audio_dma_setup_record(
