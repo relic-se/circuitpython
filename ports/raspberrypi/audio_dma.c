@@ -348,6 +348,37 @@ audio_dma_result audio_dma_setup(
         }
     }
 
+    // Start input before output to allow the first two blocks to load.
+    if (input_register_address) {
+        // We keep the audio_dma_t for internal use and the sample as a root pointer because it
+        // contains the audiodma structure.
+        MP_STATE_PORT(recording_audio)[dma->input_channel[0]] = dma;
+        MP_STATE_PORT(recording_audio)[dma->input_channel[1]] = dma;
+
+        // Special case the DMA for a single buffer.
+        if (single_buffer) {
+            dma_channel_config c = dma_channel_get_default_config(dma->input_channel[1]);
+            channel_config_set_transfer_data_size(&c, DMA_SIZE_32);
+            channel_config_set_dreq(&c, 0x3f); // dma as fast as possible
+            channel_config_set_read_increment(&c, false);
+            channel_config_set_write_increment(&c, false);
+            channel_config_set_chain_to(&c, dma->input_channel[1]); // Chain to ourselves so we stop.
+            dma_channel_configure(dma->input_channel[1], &c,
+                &dma->input_buffer[0], // write address
+                &dma_hw->ch[dma->input_channel[0]].al2_write_addr_trig, // read address
+                1, // transaction count
+                false); // trigger
+        } else {
+            // Enable our DMA channels on DMA_IRQ_1 to the CPU.
+            dma_hw->inte1 |= (1 << dma->input_channel[0]) | (1 << dma->input_channel[1]);
+            irq_set_mask_enabled(1 << DMA_IRQ_1, true);
+        }
+
+        dma->input_index = -1;
+        dma->recording_in_progress = true;
+        dma_channel_start(dma->input_channel[0]);
+    }
+
     if (output_register_address) {
         // We keep the audio_dma_t for internal use and the sample as a root pointer because it
         // contains the audiodma structure.
@@ -386,36 +417,6 @@ audio_dma_result audio_dma_setup(
 
         dma->playing_in_progress = true;
         dma_channel_start(dma->output_channel[0]);
-    }
-
-    if (input_register_address) {
-        // We keep the audio_dma_t for internal use and the sample as a root pointer because it
-        // contains the audiodma structure.
-        MP_STATE_PORT(recording_audio)[dma->input_channel[0]] = dma;
-        MP_STATE_PORT(recording_audio)[dma->input_channel[1]] = dma;
-
-        // Special case the DMA for a single buffer.
-        if (single_buffer) {
-            dma_channel_config c = dma_channel_get_default_config(dma->input_channel[1]);
-            channel_config_set_transfer_data_size(&c, DMA_SIZE_32);
-            channel_config_set_dreq(&c, 0x3f); // dma as fast as possible
-            channel_config_set_read_increment(&c, false);
-            channel_config_set_write_increment(&c, false);
-            channel_config_set_chain_to(&c, dma->input_channel[1]); // Chain to ourselves so we stop.
-            dma_channel_configure(dma->input_channel[1], &c,
-                &dma->input_buffer[0], // write address
-                &dma_hw->ch[dma->input_channel[0]].al2_write_addr_trig, // read address
-                1, // transaction count
-                false); // trigger
-        } else {
-            // Enable our DMA channels on DMA_IRQ_1 to the CPU.
-            dma_hw->inte1 |= (1 << dma->input_channel[0]) | (1 << dma->input_channel[1]);
-            irq_set_mask_enabled(1 << DMA_IRQ_1, true);
-        }
-
-        dma->input_index = -1;
-        dma->recording_in_progress = true;
-        dma_channel_start(dma->input_channel[0]);
     }
 
     return AUDIO_DMA_OK;
