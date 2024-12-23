@@ -100,7 +100,7 @@
 //|
 //|           mic = audiobusio.I2S(board.GP0, board.GP1, data_in=board.GP2, channel_count=1, sample_rate=16000)
 //|           dac = audiopwmio.PWMAudioOut(board.GP3)
-//|           mic.play(output)
+//|           dac.play(mic)
 //|         """
 //|     ...
 static mp_obj_t audiobusio_i2s_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
