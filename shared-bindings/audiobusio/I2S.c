@@ -179,6 +179,42 @@ static mp_obj_t audiobusio_i2s_obj___exit__(size_t n_args, const mp_obj_t *args)
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(audiobusio_i2s___exit___obj, 4, 4, audiobusio_i2s_obj___exit__);
 
+//|     def record(self, destination: WriteableBuffer, destination_length: int) -> None:
+//|         """Records destination_length bytes of samples to destination. This is
+//|         blocking.
+//|
+//|         An IOError may be raised when the destination is too slow to record the
+//|         audio at the given rate. For internal flash, writing all 1s to the file
+//|         before recording is recommended to speed up writes.
+//|
+//|         :return: The number of samples recorded. If this is less than ``destination_length``,
+//|           some samples were missed due to processing time."""
+//|         ...
+static mp_obj_t audiobusio_i2s_obj_record(mp_obj_t self_obj, mp_obj_t destination, mp_obj_t destination_length) {
+    audiobusio_i2s_obj_t *self = MP_OBJ_TO_PTR(self_obj);
+    check_for_deinit(self);
+    uint32_t length = mp_arg_validate_type_int(destination_length, MP_QSTR_length);
+    mp_arg_validate_length_min(length, 0, MP_QSTR_length);
+
+    mp_buffer_info_t bufinfo;
+    if (mp_obj_is_type(destination, &mp_type_fileio)) {
+        mp_raise_NotImplementedError(MP_ERROR_TEXT("Cannot record to a file"));
+    } else if (mp_get_buffer(destination, &bufinfo, MP_BUFFER_WRITE)) {
+        if (bufinfo.len / mp_binary_get_size('@', bufinfo.typecode, NULL) < length) {
+            mp_raise_ValueError(MP_ERROR_TEXT("Destination capacity is smaller than destination_length."));
+        }
+        uint8_t bit_depth = common_hal_audiobusio_i2s_get_bits_per_sample(self);
+        if (bufinfo.typecode != 'h' && bit_depth == 16) {
+            mp_raise_ValueError(MP_ERROR_TEXT("destination buffer must be an array of type 'h' for bit_depth = 16"));
+        } else if (bufinfo.typecode != 'B' && bufinfo.typecode != BYTEARRAY_TYPECODE && bit_depth == 8) {
+            mp_raise_ValueError(MP_ERROR_TEXT("destination buffer must be a bytearray or array of type 'B' for bit_depth = 8"));
+        }
+        // length is the buffer length in slots, not bytes.
+        common_hal_audiobusio_i2s_record_to_buffer(self, bufinfo.buf, length);
+    }
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_3(audiobusio_i2s_record_obj, audiobusio_i2s_obj_record);
 
 //|     def play(self, sample: circuitpython_typing.AudioSample, *, loop: bool = False) -> None:
 //|         """Plays the sample once when loop=False and continuously when loop=True.
@@ -280,6 +316,7 @@ static const mp_rom_map_elem_t audiobusio_i2s_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&audiobusio_i2s_deinit_obj) },
     { MP_ROM_QSTR(MP_QSTR___enter__), MP_ROM_PTR(&default___enter___obj) },
     { MP_ROM_QSTR(MP_QSTR___exit__), MP_ROM_PTR(&audiobusio_i2s___exit___obj) },
+    { MP_ROM_QSTR(MP_QSTR_record), MP_ROM_PTR(&audiobusio_i2s_record_obj) },
     { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&audiobusio_i2s_play_obj) },
     { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&audiobusio_i2s_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_pause), MP_ROM_PTR(&audiobusio_i2s_pause_obj) },

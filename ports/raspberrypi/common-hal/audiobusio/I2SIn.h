@@ -26,6 +26,7 @@ typedef struct {
     uint32_t sample_rate;
     uint8_t bits_per_sample;
     bool samples_signed;
+    uint8_t last_index;
 } audiobusio_i2sin_obj_t;
 
 

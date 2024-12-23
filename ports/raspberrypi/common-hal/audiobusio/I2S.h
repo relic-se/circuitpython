@@ -26,6 +26,8 @@ typedef struct {
     uint32_t sample_rate;
     uint8_t bits_per_sample;
     bool samples_signed;
+    uint8_t last_sample_index;
+    uint8_t last_record_index;
 } audiobusio_i2s_obj_t;
 
 // These are not available from Python because it may be called in an interrupt.

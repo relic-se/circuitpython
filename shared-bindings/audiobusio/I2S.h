@@ -23,6 +23,9 @@ void common_hal_audiobusio_i2s_construct(audiobusio_i2s_obj_t *self,
 void common_hal_audiobusio_i2s_deinit(audiobusio_i2s_obj_t *self);
 bool common_hal_audiobusio_i2s_deinited(audiobusio_i2s_obj_t *self);
 
+void common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
+    int16_t *buffer, uint32_t length);
+
 void common_hal_audiobusio_i2s_play(audiobusio_i2s_obj_t *self, mp_obj_t sample, bool loop);
 void common_hal_audiobusio_i2s_stop(audiobusio_i2s_obj_t *self);
 bool common_hal_audiobusio_i2s_get_playing(audiobusio_i2s_obj_t *self);

@@ -293,6 +293,8 @@ void audiobusio_i2sin_reset_buffer(audiobusio_i2sin_obj_t *self,
         common_hal_rp2pio_statemachine_stop(&self->state_machine);
         mp_raise_RuntimeError(MP_ERROR_TEXT("Unable to allocate buffers for signed conversion"));
     }
+
+    self->last_index = -1;
 }
 
 audioio_get_buffer_result_t audiobusio_i2sin_get_buffer(audiobusio_i2sin_obj_t *self,
@@ -301,10 +303,8 @@ audioio_get_buffer_result_t audiobusio_i2sin_get_buffer(audiobusio_i2sin_obj_t *
     uint8_t **buffer,
     uint32_t *buffer_length) {
 
-    // TODO: single_channel_output
-
     // Do other things while we wait for the buffer to fill.
-    while (!audio_dma_has_buffer(&self->dma)) {
+    while (self->last_index == self->dma.input_index) {
         RUN_BACKGROUND_TASKS;
     }
 

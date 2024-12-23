@@ -677,13 +677,7 @@ uint8_t *audio_dma_get_buffer(audio_dma_t *dma) {
     if (!dma->input_register_address || dma->input_index >= 2) {
         return NULL;
     }
-    uint8_t *buffer = dma->input_buffer[dma->input_index];
-    dma->input_index = -1;
-    return buffer;
-}
-
-bool audio_dma_has_buffer(audio_dma_t *dma) {
-    return dma->input_register_address && dma->input_index < 2;
+    return dma->input_buffer[dma->input_index];
 }
 
 // WARN(tannewt): DO NOT print from here, or anything it calls. Printing calls

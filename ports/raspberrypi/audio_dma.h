@@ -100,7 +100,6 @@ void audio_dma_stop_input(audio_dma_t *dma);
 bool audio_dma_get_playing(audio_dma_t *dma);
 bool audio_dma_get_recording(audio_dma_t *dma);
 uint8_t *audio_dma_get_buffer(audio_dma_t *dma);
-bool audio_dma_has_buffer(audio_dma_t *dma);
 void audio_dma_pause(audio_dma_t *dma);
 void audio_dma_resume(audio_dma_t *dma);
 bool audio_dma_get_paused(audio_dma_t *dma);
