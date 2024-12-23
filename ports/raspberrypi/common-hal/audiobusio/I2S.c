@@ -109,6 +109,7 @@ void common_hal_audiobusio_i2s_construct(audiobusio_i2s_obj_t *self,
 void i2s_configure_audio_dma(audiobusio_i2s_obj_t *self, mp_obj_t sample, bool loop, uint32_t sample_rate, uint8_t bits_per_sample) {
 
     if (self->dma.output_channel[0] != NUM_DMA_CHANNELS || self->dma.input_channel[0] != NUM_DMA_CHANNELS) {
+        return;
         if (self->state_machine.out) {
             audio_dma_stop_output(&self->dma);
         }
