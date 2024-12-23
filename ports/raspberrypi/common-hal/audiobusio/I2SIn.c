@@ -18,6 +18,8 @@
 
 #include "audio_dma.h"
 
+#if CIRCUITPY_AUDIOBUSIO_I2SIN && !CIRCUITPY_AUDIOBUSIO_I2SOUT
+
 const uint16_t i2sin_program_mono[] = {
 //     pull block   side 0b11 ; Load OSR with bits_per_sample-2
     0x98a0,
@@ -324,3 +326,5 @@ void audiobusio_i2sin_get_buffer_structure(audiobusio_i2sin_obj_t *self, bool si
         *spacing = 1;
     }
 }
+
+#endif // CIRCUITPY_AUDIOBUSIO_I2SIN && !CIRCUITPY_AUDIOBUSIO_I2SOUT

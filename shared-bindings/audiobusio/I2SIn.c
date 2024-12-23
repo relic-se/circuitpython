@@ -51,11 +51,11 @@
 //|
 //|           mic = audiobusio.I2SIn(board.GP0, board.GP1, board.GP2, channel_count=1, sample_rate=16000)
 //|           dac = audiopwmio.PWMAudioOut(board.GP3)
-//|           mic.play(output)
+//|           dac.play(mic)
 //|         """
 //|     ...
 static mp_obj_t audiobusio_i2sin_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
-    #if !CIRCUITPY_AUDIOBUSIO_I2SIN
+    #if !CIRCUITPY_AUDIOBUSIO_I2SIN || CIRCUITPY_AUDIOBUSIO_I2SOUT
     mp_raise_NotImplementedError_varg(MP_ERROR_TEXT("%q"), MP_QSTR_I2SIn);
     return NULL;                // Not reachable.
     #else
@@ -66,7 +66,7 @@ static mp_obj_t audiobusio_i2sin_make_new(const mp_obj_type_t *type, size_t n_ar
         { MP_QSTR_data,            MP_ARG_REQUIRED | MP_ARG_OBJ },
         { MP_QSTR_buffer_size,     MP_ARG_KW_ONLY | MP_ARG_INT,  {.u_int = 512} },
         { MP_QSTR_channel_count,   MP_ARG_KW_ONLY | MP_ARG_INT,  {.u_int = 2} },
-        { MP_QSTR_sample_rate,     MP_ARG_KW_ONLY | MP_ARG_INT,  {.u_int = 16000} },
+        { MP_QSTR_sample_rate,     MP_ARG_KW_ONLY | MP_ARG_INT,  {.u_int = 8000} },
         { MP_QSTR_bits_per_sample, MP_ARG_KW_ONLY | MP_ARG_INT,  {.u_int = 16} },
         { MP_QSTR_samples_signed,  MP_ARG_KW_ONLY | MP_ARG_BOOL, {.u_bool = true} },
     };
@@ -91,7 +91,7 @@ static mp_obj_t audiobusio_i2sin_make_new(const mp_obj_type_t *type, size_t n_ar
     #endif
 }
 
-#if CIRCUITPY_AUDIOBUSIO_I2SIN
+#if CIRCUITPY_AUDIOBUSIO_I2SIN && !CIRCUITPY_AUDIOBUSIO_I2SOUT
 
 //|     def deinit(self) -> None:
 //|         """Deinitialises the I2SIn and releases any hardware resources for reuse."""
@@ -122,7 +122,7 @@ static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(audiobusio_i2sin___exit___obj, 4, 4, 
 #endif // CIRCUITPY_AUDIOBUSIO_I2SIN
 
 static const mp_rom_map_elem_t audiobusio_i2sin_locals_dict_table[] = {
-    #if CIRCUITPY_AUDIOBUSIO_I2SIN
+    #if CIRCUITPY_AUDIOBUSIO_I2SIN && !CIRCUITPY_AUDIOBUSIO_I2SOUT
     // Methods
     { MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&audiobusio_i2sin_deinit_obj) },
     { MP_ROM_QSTR(MP_QSTR___enter__), MP_ROM_PTR(&default___enter___obj) },
@@ -133,7 +133,7 @@ static MP_DEFINE_CONST_DICT(audiobusio_i2sin_locals_dict, audiobusio_i2sin_local
 
 static const audiosample_p_t audiobusio_i2sin_proto = {
     MP_PROTO_IMPLEMENT(MP_QSTR_protocol_audiosample)
-    #if CIRCUITPY_AUDIOBUSIO_I2SIN
+    #if CIRCUITPY_AUDIOBUSIO_I2SIN && !CIRCUITPY_AUDIOBUSIO_I2SOUT
     .sample_rate = (audiosample_sample_rate_fun)common_hal_audiobusio_i2sin_get_sample_rate,
     .bits_per_sample = (audiosample_bits_per_sample_fun)common_hal_audiobusio_i2sin_get_bits_per_sample,
     .channel_count = (audiosample_channel_count_fun)common_hal_audiobusio_i2sin_get_channel_count,
