@@ -26,7 +26,7 @@
 //|         data_out: Optional[microcontroller.Pin] = None,
 //|         data_in: Optional[microcontroller.Pin] = None,
 //|         main_clock: Optional[microcontroller.Pin] = None,
-//|         left_justified: bool = False
+//|         left_justified: bool = False,
 //|         buffer_size: int = 512,
 //|         channel_count: int = 2,
 //|         sample_rate: int = 8000,
@@ -90,7 +90,7 @@
 //|           a.play(wav)
 //|           while a.playing:
 //|             pass
-//|           print("stopped")"""
+//|           print("stopped")
 //|
 //|         Playing an I2S input signal to a PWMAudioOut::
 //|
@@ -172,7 +172,6 @@ static void check_for_deinit(audiobusio_i2s_obj_t *self) {
 //|         """Automatically deinitializes the hardware when exiting a context. See
 //|         :ref:`lifetime-and-contextmanagers` for more info."""
 //|         ...
-//|
 static mp_obj_t audiobusio_i2s_obj___exit__(size_t n_args, const mp_obj_t *args) {
     (void)n_args;
     common_hal_audiobusio_i2s_deinit(args[0]);

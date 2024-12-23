@@ -24,26 +24,23 @@
 
 #define I2S_CODE(bits_per_sample, out, in, left_justified, swap) \
     { \
-/*                                                                                           /--- LRCLK */ \
-/*                                                                                           |/-- BCLK */ \
-/*                                                                                           || */ \
-/* 00 */ pio_encode_set(pio_y, bits_per_sample - 2)                | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap)  | pio_encode_delay(1), \
+/* 00 */ pio_encode_set(pio_y, bits_per_sample - 2) | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap) | pio_encode_delay(1), \
         /* .wrap_target */ \
-/* 01 */ (out ? pio_encode_pull(false, false) : pio_encode_nop())  | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
+/* 01 */ (out ? pio_encode_pull(false, false) : pio_encode_nop()) | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
 /* 02 */ (out ? pio_encode_mov(pio_x, pio_osr) : pio_encode_nop()) | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
-/* 03 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop())    | pio_encode_sideset(2, 0b00)                                    | pio_encode_delay(3), \
-/* 04 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop())      | pio_encode_sideset(2, 0b01 << swap), \
-/* 05 */ pio_encode_jmp_y_dec(3)                                   | pio_encode_sideset(2, 0b01 << swap)                            | pio_encode_delay(2), \
-/* 06 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop())    | pio_encode_sideset(2, 0b00         | !left_justified << !swap) | pio_encode_delay(3), \
-/* 07 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop())      | pio_encode_sideset(2, 0b01 << swap | !left_justified << !swap), \
-/* 08 */ pio_encode_set(pio_y, bits_per_sample - 2)                | pio_encode_sideset(2, 0b01 << swap | !left_justified << !swap) | pio_encode_delay(2), \
-/* 09 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop())    | pio_encode_sideset(2, 0b10 >> swap)                            | pio_encode_delay(3), \
-/* 10 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop())      | pio_encode_sideset(2, 0b11), \
-/* 11 */ pio_encode_jmp_y_dec(9)                                   | pio_encode_sideset(2, 0b11)                                    | pio_encode_delay(2), \
-/* 12 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop())    | pio_encode_sideset(2, 0b00         | left_justified << !swap)  | pio_encode_delay(2), \
-/* 13 */ pio_encode_set(pio_y, bits_per_sample - 2)                | pio_encode_sideset(2, 0b00         | left_justified << !swap), \
-/* 13 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop())      | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
-/* 14 */ (in ? pio_encode_push(false, false) : pio_encode_nop())   | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
+/* 03 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b00) | pio_encode_delay(3), \
+/* 04 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b01 << swap), \
+/* 05 */ pio_encode_jmp_y_dec(3) | pio_encode_sideset(2, 0b01 << swap) | pio_encode_delay(2), \
+/* 06 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b00 | !left_justified << !swap) | pio_encode_delay(3), \
+/* 07 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b01 << swap | !left_justified << !swap), \
+/* 08 */ pio_encode_set(pio_y, bits_per_sample - 2) | pio_encode_sideset(2, 0b01 << swap | !left_justified << !swap) | pio_encode_delay(2), \
+/* 09 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b10 >> swap) | pio_encode_delay(3), \
+/* 10 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b11), \
+/* 11 */ pio_encode_jmp_y_dec(9) | pio_encode_sideset(2, 0b11) | pio_encode_delay(2), \
+/* 12 */ (out ? pio_encode_out(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b00 | left_justified << !swap) | pio_encode_delay(2), \
+/* 13 */ pio_encode_set(pio_y, bits_per_sample - 2) | pio_encode_sideset(2, 0b00 | left_justified << !swap), \
+/* 13 */ (in ? pio_encode_in(pio_pins, 1) : pio_encode_nop()) | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
+/* 14 */ (in ? pio_encode_push(false, false) : pio_encode_nop()) | pio_encode_sideset(2, 0b01 << swap | left_justified << !swap), \
         /* .wrap */ \
     }
 
@@ -171,7 +168,7 @@ void common_hal_audiobusio_i2s_play(audiobusio_i2s_obj_t *self,
     if (!self->state_machine.out) {
         mp_raise_RuntimeError(MP_ERROR_TEXT("No data out"));
     }
-    
+
     if (common_hal_audiobusio_i2s_get_playing(self)) {
         common_hal_audiobusio_i2s_stop(self);
     }
