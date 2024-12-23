@@ -292,7 +292,6 @@ audioio_get_buffer_result_t audiobusio_i2s_get_buffer(audiobusio_i2s_obj_t *self
 
     // Do other things while we wait for the buffer to fill.
     while (!audio_dma_has_buffer(&self->dma)) {
-        // BUG: Issue with interrupt?
         if (self->state_machine.out) {
             common_hal_mcu_delay_us(1000000 / self->sample_rate);
         } else {
