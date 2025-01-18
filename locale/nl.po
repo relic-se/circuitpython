@@ -218,7 +218,7 @@ msgstr ""
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr ""
 
@@ -797,6 +797,10 @@ msgstr "Kan RTS of CTS niet specificeren in RS485 modus"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "Kan slice niet subclasseren"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2331,6 +2335,7 @@ msgstr ""
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr ""
 
@@ -3409,10 +3414,6 @@ msgstr "label '%q' is niet gedefinieerd"
 msgid "label redefined"
 msgstr "label opnieuw gedefinieerd"
 
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr "level moet tussen 0 en 1 liggen"
-
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"
 msgstr "lhs en rhs moeten compatibel zijn"
@@ -4391,6 +4392,9 @@ msgstr "zi moet van type float zijn"
 #: extmod/ulab/code/scipy/signal/signal.c
 msgid "zi must be of shape (n_section, 2)"
 msgstr "zi moet vorm (n_section, 2) hebben"
+
+#~ msgid "level must be between 0 and 1"
+#~ msgstr "level moet tussen 0 en 1 liggen"
 
 #~ msgid "The sample's bits_per_sample does not match the mixer's"
 #~ msgstr "De sample's bits_per_sample komen niet overeen met die van de mixer"

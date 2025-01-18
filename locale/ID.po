@@ -230,7 +230,7 @@ msgstr "%q harus kelipatan 8."
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr "%q harus bertipe %q atau %q, bukan %q"
 
@@ -816,6 +816,10 @@ msgstr "Tidak dapat menentukan RTS atau CTS dalam mode RS485"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "Tidak dapat membuat subkelas dari irisan"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2362,6 +2366,7 @@ msgstr "Anda menekan kedua tombol saat memulai."
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr "Anda menekan tombol A saat memulai."
 
@@ -3433,10 +3438,6 @@ msgstr ""
 #: py/compile.c
 msgid "label redefined"
 msgstr "label didefinis ulang"
-
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr ""
 
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"

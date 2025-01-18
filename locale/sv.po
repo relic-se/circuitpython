@@ -232,7 +232,7 @@ msgstr "%q måste vara en multipel av 8."
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr "%q måste vara av typen %q eller %q, inte %q"
 
@@ -812,6 +812,10 @@ msgstr "Det går inte att specificera RTS eller CTS i RS485-läget"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "Det går inte att subklassa slice"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2357,6 +2361,7 @@ msgstr "Du tryckte ner båda knapparna vid start."
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr "Du tryckte ner knapp A vid start."
 
@@ -3436,10 +3441,6 @@ msgstr "etiketten '%q' har inte definierats"
 msgid "label redefined"
 msgstr "etiketten omdefinierad"
 
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr "level ska ligga mellan 0 och 1"
-
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"
 msgstr "lhs och rhs måste vara kompatibla"
@@ -4418,6 +4419,9 @@ msgstr "zi måste vara av typ float"
 #: extmod/ulab/code/scipy/signal/signal.c
 msgid "zi must be of shape (n_section, 2)"
 msgstr "zi måste vara i formen (n_section, 2)"
+
+#~ msgid "level must be between 0 and 1"
+#~ msgstr "level ska ligga mellan 0 och 1"
 
 #~ msgid "init I2C"
 #~ msgstr "I2C start"

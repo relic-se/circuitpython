@@ -234,7 +234,7 @@ msgstr "%q doit être un multiple de 8."
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr "%q doit être de type %q ou %q, pas %q"
 
@@ -822,6 +822,10 @@ msgstr "Impossible de spécifier RTS ou CTS en mode RS485"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "On ne peut faire de sous-classes de tranches"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2395,6 +2399,7 @@ msgstr "Vous avez appuyé les deux boutons au démarrage."
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr "Vous avez appuyé le bouton A au démarrage."
 
@@ -3477,7 +3482,8 @@ msgstr ""
 
 #: py/argcheck.c
 msgid "keyword argument(s) not implemented - use normal args instead"
-msgstr "paramètre mot clé non implanté - utilisez paramètres normaux à la place"
+msgstr ""
+"paramètre mot clé non implanté - utilisez paramètres normaux à la place"
 
 #: py/emitinlinethumb.c py/emitinlinextensa.c
 msgid "label '%q' not defined"
@@ -3486,10 +3492,6 @@ msgstr "label '%q' non supporté"
 #: py/compile.c
 msgid "label redefined"
 msgstr "étiquette redéfinie"
-
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr "le niveau doit être compris entre 0 et 1"
 
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"
@@ -4398,8 +4400,8 @@ msgid ""
 "weights must be a sequence with an odd square number of elements (usually 9 "
 "or 25)"
 msgstr ""
-"poids doit être une séquence avec nombre carré impair d'éléments ("
-"habituellement 9 ou 25)"
+"poids doit être une séquence avec nombre carré impair d'éléments "
+"(habituellement 9 ou 25)"
 
 #: shared-bindings/bitmapfilter/__init__.c
 msgid "weights must be an object of type %q, %q, %q, or %q, not %q "
@@ -4475,6 +4477,9 @@ msgstr "zi doit être de type float"
 #: extmod/ulab/code/scipy/signal/signal.c
 msgid "zi must be of shape (n_section, 2)"
 msgstr "zi doit être de forme (n_section, 2)"
+
+#~ msgid "level must be between 0 and 1"
+#~ msgstr "le niveau doit être compris entre 0 et 1"
 
 #~ msgid "init I2C"
 #~ msgstr "initialisation I2C"

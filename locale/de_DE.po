@@ -232,7 +232,7 @@ msgstr "%q muss ein Vielfaches von 8 sein."
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr "%q muss von Typ %q oder %q sein, nicht %q"
 
@@ -814,6 +814,10 @@ msgstr "RTS oder CTS können im RS485-Modus nicht angegeben werden"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "Slice kann keine sub-klasse sein"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2374,6 +2378,7 @@ msgstr "Beide Knöpfe wurden beim Starten gedrückt."
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr "Knopf A wurde beim Starten gedrückt."
 
@@ -3464,10 +3469,6 @@ msgstr "Label '%q' nicht definiert"
 msgid "label redefined"
 msgstr "Label neu definiert"
 
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr "Der Pegel muss zwischen 0 und 1 liegen"
-
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"
 msgstr "lhs und rhs sollten kompatibel sein"
@@ -4458,6 +4459,9 @@ msgstr "zi muss eine Gleitkommazahl sein"
 #: extmod/ulab/code/scipy/signal/signal.c
 msgid "zi must be of shape (n_section, 2)"
 msgstr "zi muss die Form (n_section, 2) haben"
+
+#~ msgid "level must be between 0 and 1"
+#~ msgstr "Der Pegel muss zwischen 0 und 1 liegen"
 
 #~ msgid "init I2C"
 #~ msgstr "initialisiere I2C"

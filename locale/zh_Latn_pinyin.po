@@ -233,7 +233,7 @@ msgstr "%q bìxū shì 8 debèishù."
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr "%q de lèi xíng bì xū shì %q huò %q, ér bù shì %q"
 
@@ -814,6 +814,10 @@ msgstr "wúfǎ zài RS485 móshì xià zhǐdìng RTS huò CTS"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "bùnéng zǐlèihuà qiēpiàn"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2363,6 +2367,7 @@ msgstr "nín zài qǐ dòng shí àn xià le liǎng gè àn niǔ."
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr "nín zài qǐ dòng shí àn xià le àn niǔ A."
 
@@ -3442,10 +3447,6 @@ msgstr "biāoqiān '%q' wèi dìngyì"
 msgid "label redefined"
 msgstr "biāoqiān chóngxīn dìngyì"
 
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr "Level bìxū jiè yú 0 hé 1 zhī jiān"
-
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"
 msgstr "lhs hé rhs yīnggāi jiānróng"
@@ -4430,6 +4431,9 @@ msgstr "zi bìxū wèi fú diǎn xíng"
 #: extmod/ulab/code/scipy/signal/signal.c
 msgid "zi must be of shape (n_section, 2)"
 msgstr "zi bìxū jùyǒu xíngzhuàng (n_section,2)"
+
+#~ msgid "level must be between 0 and 1"
+#~ msgstr "Level bìxū jiè yú 0 hé 1 zhī jiān"
 
 #~ msgid "init I2C"
 #~ msgstr "chūshǐhuà I2C"

@@ -233,7 +233,7 @@ msgstr "%q debe ser múltiplo de 8."
 #: ports/raspberrypi/bindings/cyw43/__init__.c py/argcheck.c py/objexcept.c
 #: shared-bindings/bitmapfilter/__init__.c shared-bindings/canio/CAN.c
 #: shared-bindings/digitalio/Pull.c shared-bindings/supervisor/__init__.c
-#: shared-module/synthio/Synthesizer.c
+#: shared-module/synthio/Biquad.c shared-module/synthio/Synthesizer.c
 msgid "%q must be of type %q or %q, not %q"
 msgstr "%q debe ser del tipo %q o %q, y no %q"
 
@@ -818,6 +818,10 @@ msgstr "No se puede especificar RTS o CTS en modo RS485"
 #: py/objslice.c
 msgid "Cannot subclass slice"
 msgstr "No se puede manejar la partición en una subclase"
+
+#: ports/raspberrypi/common-hal/rp2pio/StateMachine.c
+msgid "Cannot use GPIO0..15 together with GPIO32..47"
+msgstr ""
 
 #: ports/nordic/common-hal/alarm/pin/PinAlarm.c
 msgid "Cannot wake on pin edge, only level"
@@ -2381,6 +2385,7 @@ msgstr "Usted presionó ambos botones al iniciar."
 #: ports/espressif/boards/m5stack_core_fire/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c/mpconfigboard.h
 #: ports/espressif/boards/m5stack_stick_c_plus/mpconfigboard.h
+#: ports/espressif/boards/m5stack_stick_c_plus2/mpconfigboard.h
 msgid "You pressed button A at start up."
 msgstr "Usted presionó el botón A al iniciar."
 
@@ -3463,10 +3468,6 @@ msgstr "etiqueta '%q' no definida"
 msgid "label redefined"
 msgstr "etiqueta redefinida"
 
-#: shared-bindings/audiomixer/MixerVoice.c
-msgid "level must be between 0 and 1"
-msgstr "el nivel debe ser entre 0 y 1"
-
 #: py/objarray.c
 msgid "lhs and rhs should be compatible"
 msgstr "lhs y rhs deben ser compatibles"
@@ -4373,8 +4374,8 @@ msgid ""
 "weights must be a sequence with an odd square number of elements (usually 9 "
 "or 25)"
 msgstr ""
-"los pesos deben ser una secuencia con una raíz cuadrada impar de elementos ("
-"usualmente 9 o 25)"
+"los pesos deben ser una secuencia con una raíz cuadrada impar de elementos "
+"(usualmente 9 o 25)"
 
 #: shared-bindings/bitmapfilter/__init__.c
 msgid "weights must be an object of type %q, %q, %q, or %q, not %q "
@@ -4450,6 +4451,9 @@ msgstr "zi debe ser de tipo flotante"
 #: extmod/ulab/code/scipy/signal/signal.c
 msgid "zi must be of shape (n_section, 2)"
 msgstr "zi debe ser una forma (n_section,2)"
+
+#~ msgid "level must be between 0 and 1"
+#~ msgstr "el nivel debe ser entre 0 y 1"
 
 #~ msgid "init I2C"
 #~ msgstr "inicializacion I2C"
