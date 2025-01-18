@@ -76,14 +76,14 @@ void common_hal_audiobusio_i2s_construct(audiobusio_i2s_obj_t *self,
         sample_rate * bits_per_sample * 16, // Frequency based on sample rate and bit width
         NULL, 0, // init
         NULL, 0, // may_exec
-        data_out, 1, 0, 0xffffffff, // out pin
+        data_out, 1, PIO_PINMASK32_NONE, PIO_PINMASK32_ALL, // out pin
         data_in, 1, // in pins
-        0, 0, // in pulls
-        NULL, 1, 0, 0, // set pins
-        sideset_pin, 2, false, 0, 0x1f, // sideset pins
+        PIO_PINMASK32_NONE, PIO_PINMASK32_NONE, // in pulls
+        NULL, 1, PIO_PINMASK32_NONE, PIO_PINMASK32_NONE, // set pins
+        sideset_pin, 2, false, PIO_PINMASK32_NONE, PIO_PINMASK32_FROM_VALUE(0x1f), // sideset pins
         false, // No sideset enable
         NULL, PULL_NONE, // jump pin
-        0, // wait gpio pins
+        PIO_PINMASK_NONE, // wait gpio pins
         true, // exclusive pin use
         false, 32, false, // out settings
         false, // Wait for txstall
