@@ -106,17 +106,14 @@ void common_hal_audiobusio_i2s_construct(audiobusio_i2s_obj_t *self,
     audio_dma_init(&self->dma);
 }
 
-void i2s_configure_audio_dma(audiobusio_i2s_obj_t *self, mp_obj_t sample, bool loop, uint32_t sample_rate, uint8_t bits_per_sample) {
-
+void i2s_configure_audio_dma(audiobusio_i2s_obj_t *self, mp_obj_t sample, bool loop, uint32_t sample_rate, uint8_t bits_per_sample, bool force) {
     if (self->dma.output_channel[0] != NUM_DMA_CHANNELS || self->dma.input_channel[0] != NUM_DMA_CHANNELS) {
-        return;
-        if (self->state_machine.out) {
-            audio_dma_stop_output(&self->dma);
+        if (!force) {
+            return;
         }
-        if (self->state_machine.in) {
-            audio_dma_stop_input(&self->dma);
-        }
-        audio_dma_deinit(&self->dma);
+
+        audio_dma_stop(&self->dma);
+        common_hal_rp2pio_statemachine_stop(&self->state_machine);
     }
 
     common_hal_rp2pio_statemachine_set_frequency(&self->state_machine, sample_rate * bits_per_sample * 16);
@@ -173,7 +170,7 @@ uint32_t common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
     }
 
     // Make sure that dma is running.
-    i2s_configure_audio_dma(self, self, true, self->sample_rate, self->bits_per_sample);
+    i2s_configure_audio_dma(self, self, true, self->sample_rate, self->bits_per_sample, true);
 
     size_t output_count = 0;
     int16_t *buffer;
@@ -182,11 +179,7 @@ uint32_t common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
     while (output_count < output_buffer_length) {
         // Do other things while we wait for the buffer to fill.
         while (self->last_record_index == self->dma.input_index) {
-            if (self->state_machine.out) {
-                common_hal_mcu_delay_us(1000000 / self->sample_rate);
-            } else {
-                RUN_BACKGROUND_TASKS;
-            }
+            RUN_BACKGROUND_TASKS;
         }
         self->last_record_index = self->dma.input_index;
 
@@ -229,7 +222,7 @@ void common_hal_audiobusio_i2s_play(audiobusio_i2s_obj_t *self,
         }
     }
 
-    i2s_configure_audio_dma(self, sample, loop, sample_rate, bits_per_sample);
+    i2s_configure_audio_dma(self, sample, loop, sample_rate, bits_per_sample, true);
     self->playing = true;
 }
 
@@ -311,7 +304,7 @@ void audiobusio_i2s_reset_buffer(audiobusio_i2s_obj_t *self,
         mp_raise_NotImplementedError(MP_ERROR_TEXT("Single channel output not supported."));
     }
 
-    i2s_configure_audio_dma(self, self, true, self->sample_rate, self->bits_per_sample);
+    i2s_configure_audio_dma(self, self, true, self->sample_rate, self->bits_per_sample, false);
     self->last_record_index = -1;
     self->last_sample_index = -1;
 }
@@ -331,11 +324,7 @@ audioio_get_buffer_result_t audiobusio_i2s_get_buffer(audiobusio_i2s_obj_t *self
 
     // Do other things while we wait for the buffer to fill.
     while (self->last_sample_index == self->dma.input_index) {
-        if (self->state_machine.out) {
-            common_hal_mcu_delay_us(1000000 / self->sample_rate);
-        } else {
-            RUN_BACKGROUND_TASKS;
-        }
+        RUN_BACKGROUND_TASKS;
     }
     self->last_sample_index = self->dma.input_index;
 

@@ -44,4 +44,4 @@ void audiobusio_i2s_get_buffer_structure(audiobusio_i2s_obj_t *self, bool single
     uint32_t *max_buffer_length, uint8_t *spacing);
 
 void i2s_configure_audio_dma(audiobusio_i2s_obj_t *self, mp_obj_t sample, bool loop,
-    uint32_t sample_rate, uint8_t bits_per_sample);
+    uint32_t sample_rate, uint8_t bits_per_sample, bool force);
