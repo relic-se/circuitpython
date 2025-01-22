@@ -166,7 +166,7 @@ void common_hal_audiobusio_i2s_deinit(audiobusio_i2s_obj_t *self) {
 
 // output_buffer may be a byte buffer or a halfword buffer.
 // output_buffer_length is the number of slots, not the number of bytes.
-void common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
+uint32_t common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
     int16_t *output_buffer, uint32_t output_buffer_length) {
     if (!self->state_machine.in) {
         mp_raise_RuntimeError(MP_ERROR_TEXT("No data in"));
@@ -199,6 +199,8 @@ void common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
 
         output_count += buffer_length;
     }
+
+    return output_count;
 }
 
 void common_hal_audiobusio_i2s_play(audiobusio_i2s_obj_t *self,

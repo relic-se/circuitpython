@@ -179,7 +179,7 @@ static mp_obj_t audiobusio_i2s_obj___exit__(size_t n_args, const mp_obj_t *args)
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(audiobusio_i2s___exit___obj, 4, 4, audiobusio_i2s_obj___exit__);
 
-//|     def record(self, destination: WriteableBuffer, destination_length: int) -> None:
+//|     def record(self, destination: WriteableBuffer, destination_length: int) -> int:
 //|         """Records destination_length bytes of samples to destination. This is
 //|         blocking.
 //|
@@ -210,7 +210,9 @@ static mp_obj_t audiobusio_i2s_obj_record(mp_obj_t self_obj, mp_obj_t destinatio
             mp_raise_ValueError(MP_ERROR_TEXT("destination buffer must be a bytearray or array of type 'B' for bit_depth = 8"));
         }
         // length is the buffer length in slots, not bytes.
-        common_hal_audiobusio_i2s_record_to_buffer(self, bufinfo.buf, length);
+        uint32_t length_written =
+            common_hal_audiobusio_i2s_record_to_buffer(self, bufinfo.buf, length);
+        return MP_OBJ_NEW_SMALL_INT(length_written);
     }
     return mp_const_none;
 }
