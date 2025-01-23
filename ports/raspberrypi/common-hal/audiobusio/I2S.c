@@ -104,6 +104,24 @@ void common_hal_audiobusio_i2s_construct(audiobusio_i2s_obj_t *self,
 
     self->playing = false;
     audio_dma_init(&self->dma);
+
+    if (self->state_machine.in) {
+        self->buffer[0] = m_malloc(self->buffer_size);
+        if (self->buffer[0] == NULL) {
+            common_hal_audiobusio_i2s_deinit(self);
+            m_malloc_fail(self->buffer_size);
+        }
+        memset(self->buffer[0], 0, self->buffer_size);
+
+        self->buffer[1] = m_malloc(self->buffer_size);
+        if (self->buffer[1] == NULL) {
+            common_hal_audiobusio_i2s_deinit(self);
+            m_malloc_fail(self->buffer_size);
+        }
+        memset(self->buffer[1], 0, self->buffer_size);
+
+        self->last_buf_idx = 1; // Which buffer to use first, toggle between 0 and 1
+    }
 }
 
 void i2s_configure_audio_dma(audiobusio_i2s_obj_t *self, mp_obj_t sample, bool loop, uint32_t sample_rate, uint8_t bits_per_sample, bool force) {
@@ -159,6 +177,9 @@ void common_hal_audiobusio_i2s_deinit(audiobusio_i2s_obj_t *self) {
     common_hal_rp2pio_statemachine_deinit(&self->state_machine);
 
     audio_dma_deinit(&self->dma);
+
+    self->buffer[0] = NULL;
+    self->buffer[1] = NULL;
 }
 
 // output_buffer may be a byte buffer or a halfword buffer.
@@ -173,21 +194,18 @@ uint32_t common_hal_audiobusio_i2s_record_to_buffer(audiobusio_i2s_obj_t *self,
     i2s_configure_audio_dma(self, self, true, self->sample_rate, self->bits_per_sample, true);
 
     size_t output_count = 0;
-    int16_t *buffer;
-    size_t buffer_length;
+    int16_t *buffer[2];
+    int8_t buffer_idx = 1;
+    size_t buffer_length = MIN((output_buffer_length - output_count), self->buffer_size / sizeof(int16_t));
 
     while (output_count < output_buffer_length) {
-        // Do other things while we wait for the buffer to fill.
-        while (self->last_record_index == self->dma.input_index) {
-            RUN_BACKGROUND_TASKS;
-        }
-        self->last_record_index = self->dma.input_index;
-
-        buffer = (int16_t *)audio_dma_get_buffer(&self->dma);
-        buffer_length = MIN((output_buffer_length - output_count), self->buffer_size / sizeof(int16_t));
+        do {
+            buffer_idx = !buffer_idx;
+            buffer[buffer_idx] = (int16_t *)audio_dma_get_buffer(&self->dma);
+        } while (buffer[buffer_idx] == NULL || buffer[0] == buffer[1]);
 
         for (size_t i = 0; i < buffer_length; i++) {
-            output_buffer[i + output_count] = buffer[i];
+            output_buffer[i + output_count] = buffer[buffer_idx][i];
         }
 
         output_count += buffer_length;
@@ -304,9 +322,10 @@ void audiobusio_i2s_reset_buffer(audiobusio_i2s_obj_t *self,
         mp_raise_NotImplementedError(MP_ERROR_TEXT("Single channel output not supported."));
     }
 
+    memset(self->buffer[0], 0, self->buffer_size);
+    memset(self->buffer[1], 0, self->buffer_size);
+
     i2s_configure_audio_dma(self, self, true, self->sample_rate, self->bits_per_sample, false);
-    self->last_record_index = -1;
-    self->last_sample_index = -1;
 }
 
 audioio_get_buffer_result_t audiobusio_i2s_get_buffer(audiobusio_i2s_obj_t *self,
@@ -322,14 +341,22 @@ audioio_get_buffer_result_t audiobusio_i2s_get_buffer(audiobusio_i2s_obj_t *self
         mp_raise_NotImplementedError(MP_ERROR_TEXT("Single channel output not supported."));
     }
 
-    // Do other things while we wait for the buffer to fill.
-    while (self->last_sample_index == self->dma.input_index) {
-        RUN_BACKGROUND_TASKS;
-    }
-    self->last_sample_index = self->dma.input_index;
+    // Switch our buffers to the other buffer
+    self->last_buf_idx = !self->last_buf_idx;
 
+    uint8_t *dma_buffer;
+    do {
+        dma_buffer = audio_dma_get_buffer(&self->dma);
+    } while (dma_buffer == NULL);
+
+    // Copy dma buffer to output buffer
+    memcpy(self->buffer[self->last_buf_idx], dma_buffer, self->buffer_size);
+
+    // Finally pass our buffer and length to the calling audio function
+    *buffer = (uint8_t *)self->buffer[self->last_buf_idx];
     *buffer_length = self->buffer_size;
-    *buffer = audio_dma_get_buffer(&self->dma);
+
+    // I2S always returns more data unless an error occured (see audiocore/__init__.h)
     return GET_BUFFER_MORE_DATA;
 }
 
