@@ -135,8 +135,8 @@ void recalculate_delay(audiodelays_echo_obj_t *self, mp_float_t f_delay_ms) {
     f_delay_ms = MAX(f_delay_ms, self->sample_ms);
 
     if (self->freq_shift) {
-        // Calculate the rate of iteration over the echo buffer with 8 sub-bits
-        self->echo_buffer_rate = (uint32_t)MAX(self->max_delay_ms / f_delay_ms * MICROPY_FLOAT_CONST(256.0), MICROPY_FLOAT_CONST(1.0));
+        // Calculate the rate of iteration over the echo buffer with ECHO_SHIFT sub-bits
+        self->echo_buffer_rate = (uint32_t)MAX(self->max_delay_ms / f_delay_ms * (mp_float_t)(1 << ECHO_SHIFT), MICROPY_FLOAT_CONST(1.0));
         self->echo_buffer_len = self->max_echo_buffer_len;
     } else {
         // Calculate the current echo buffer length in bytes
@@ -348,10 +348,10 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
                     uint32_t next_buffer_pos = 0;
 
                     if (self->freq_shift) {
-                        echo = echo_buffer[echo_buffer_pos >> 8];
+                        echo = echo_buffer[echo_buffer_pos >> ECHO_SHIFT];
                         next_buffer_pos = echo_buffer_pos + self->echo_buffer_rate;
 
-                        for (uint32_t j = echo_buffer_pos >> 8; j < next_buffer_pos >> 8; j++) {
+                        for (uint32_t j = echo_buffer_pos >> ECHO_SHIFT; j < next_buffer_pos >> ECHO_SHIFT; j++) {
                             word = (int16_t)(echo_buffer[j % echo_buf_len] * decay);
                             echo_buffer[j % echo_buf_len] = word;
                         }
@@ -376,7 +376,7 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
                     }
 
                     if (self->freq_shift) {
-                        echo_buffer_pos = next_buffer_pos % (echo_buf_len << 8);
+                        echo_buffer_pos = next_buffer_pos % (echo_buf_len << ECHO_SHIFT);
                     } else {
                         if (self->echo_buffer_read_pos >= echo_buf_len) {
                             self->echo_buffer_read_pos = 0;
@@ -419,7 +419,7 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
                     int32_t echo, word = 0;
                     uint32_t next_buffer_pos = 0;
                     if (self->freq_shift) {
-                        echo = echo_buffer[echo_buffer_pos >> 8];
+                        echo = echo_buffer[echo_buffer_pos >> ECHO_SHIFT];
                         next_buffer_pos = echo_buffer_pos + self->echo_buffer_rate;
                     } else {
                         echo = echo_buffer[self->echo_buffer_read_pos++];
@@ -428,7 +428,7 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
 
                     if (MP_LIKELY(self->bits_per_sample == 16)) {
                         if (self->freq_shift) {
-                            for (uint32_t j = echo_buffer_pos >> 8; j < next_buffer_pos >> 8; j++) {
+                            for (uint32_t j = echo_buffer_pos >> ECHO_SHIFT; j < next_buffer_pos >> ECHO_SHIFT; j++) {
                                 word = (int32_t)(echo_buffer[j % echo_buf_len] * decay + sample_word);
                                 word = synthio_mix_down_sample(word, SYNTHIO_MIX_DOWN_SCALE(2));
                                 echo_buffer[j % echo_buf_len] = (int16_t)word;
@@ -439,7 +439,7 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
                         }
                     } else {
                         if (self->freq_shift) {
-                            for (uint32_t j = echo_buffer_pos >> 8; j < next_buffer_pos >> 8; j++) {
+                            for (uint32_t j = echo_buffer_pos >> ECHO_SHIFT; j < next_buffer_pos >> ECHO_SHIFT; j++) {
                                 word = (int32_t)(echo_buffer[j % echo_buf_len] * decay + sample_word);
                                 // Do not have mix_down for 8 bit so just hard cap samples into 1 byte
                                 word = MIN(MAX(word, -128), 127);
@@ -470,7 +470,7 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
                     }
 
                     if (self->freq_shift) {
-                        echo_buffer_pos = next_buffer_pos % (echo_buf_len << 8);
+                        echo_buffer_pos = next_buffer_pos % (echo_buf_len << ECHO_SHIFT);
                     } else {
                         if (self->echo_buffer_read_pos >= echo_buf_len) {
                             self->echo_buffer_read_pos = 0;

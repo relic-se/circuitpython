@@ -11,6 +11,8 @@
 #include "shared-module/synthio/__init__.h"
 #include "shared-module/synthio/block.h"
 
+#define ECHO_SHIFT (8)
+
 extern const mp_obj_type_t audiodelays_echo_type;
 
 typedef struct {
@@ -45,9 +47,9 @@ typedef struct {
     uint32_t echo_buffer_read_pos; // words
     uint32_t echo_buffer_write_pos; // words
 
-    uint32_t echo_buffer_rate; // words << 8
-    uint32_t echo_buffer_left_pos; // words << 8
-    uint32_t echo_buffer_right_pos; // words << 8
+    uint32_t echo_buffer_rate; // words << ECHO_SHIFT
+    uint32_t echo_buffer_left_pos; // words << ECHO_SHIFT
+    uint32_t echo_buffer_right_pos; // words << ECHO_SHIFT
 
     mp_obj_t sample;
 } audiodelays_echo_obj_t;
