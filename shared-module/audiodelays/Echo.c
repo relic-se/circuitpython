@@ -310,7 +310,7 @@ audioio_get_buffer_result_t audiodelays_echo_get_buffer(audiodelays_echo_obj_t *
         mp_float_t decay = synthio_block_slot_get_limited(&self->decay, MICROPY_FLOAT_CONST(0.0), MICROPY_FLOAT_CONST(1.0));
 
         mp_float_t f_delay_ms = synthio_block_slot_get(&self->delay_ms);
-        if (MICROPY_FLOAT_C_FUN(fabs)(self->current_delay_ms - f_delay_ms) >= self->sample_ms) {
+        if (memcmp(&self->current_delay_ms, &f_delay_ms, sizeof(mp_float_t))) {
             recalculate_delay(self, f_delay_ms);
         }
 
