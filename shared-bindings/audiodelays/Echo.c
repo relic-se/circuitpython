@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "shared-bindings/audiodelays/Echo.h"
+#include "shared-bindings/audiocore/__init__.h"
 #include "shared-module/audiodelays/Echo.h"
 
 #include "shared/runtime/context_manager_helpers.h"
@@ -16,9 +17,6 @@
 #include "shared-bindings/util.h"
 #include "shared-module/synthio/block.h"
 
-#define DECAY_DEFAULT 0.7f
-#define MIX_DEFAULT 0.5f
-
 //| class Echo:
 //|     """An Echo effect"""
 //|
@@ -27,7 +25,7 @@
 //|         max_delay_ms: int = 500,
 //|         delay_ms: synthio.BlockInput = 250.0,
 //|         decay: synthio.BlockInput = 0.7,
-//|         mix: synthio.BlockInput = 0.5,
+//|         mix: synthio.BlockInput = 0.25,
 //|         buffer_size: int = 512,
 //|         sample_rate: int = 8000,
 //|         bits_per_sample: int = 16,
@@ -76,6 +74,7 @@
 //|               synth.release(note)
 //|               time.sleep(5)"""
 //|         ...
+//|
 static mp_obj_t audiodelays_echo_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
     enum { ARG_max_delay_ms, ARG_delay_ms, ARG_decay, ARG_mix, ARG_buffer_size, ARG_sample_rate, ARG_bits_per_sample, ARG_samples_signed, ARG_channel_count, ARG_freq_shift, };
     static const mp_arg_t allowed_args[] = {
@@ -112,6 +111,7 @@ static mp_obj_t audiodelays_echo_make_new(const mp_obj_type_t *type, size_t n_ar
 //|     def deinit(self) -> None:
 //|         """Deinitialises the Echo."""
 //|         ...
+//|
 static mp_obj_t audiodelays_echo_deinit(mp_obj_t self_in) {
     audiodelays_echo_obj_t *self = MP_OBJ_TO_PTR(self_in);
     common_hal_audiodelays_echo_deinit(self);
@@ -120,26 +120,21 @@ static mp_obj_t audiodelays_echo_deinit(mp_obj_t self_in) {
 static MP_DEFINE_CONST_FUN_OBJ_1(audiodelays_echo_deinit_obj, audiodelays_echo_deinit);
 
 static void check_for_deinit(audiodelays_echo_obj_t *self) {
-    if (common_hal_audiodelays_echo_deinited(self)) {
-        raise_deinited_error();
-    }
+    audiosample_check_for_deinit(&self->base);
 }
 
 //|     def __enter__(self) -> Echo:
 //|         """No-op used by Context Managers."""
 //|         ...
+//|
 //  Provided by context manager helper.
 
 //|     def __exit__(self) -> None:
 //|         """Automatically deinitializes when exiting a context. See
 //|         :ref:`lifetime-and-contextmanagers` for more info."""
 //|         ...
-static mp_obj_t audiodelays_echo_obj___exit__(size_t n_args, const mp_obj_t *args) {
-    (void)n_args;
-    common_hal_audiodelays_echo_deinit(args[0]);
-    return mp_const_none;
-}
-static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(audiodelays_echo___exit___obj, 4, 4, audiodelays_echo_obj___exit__);
+//|
+//  Provided by context manager helper.
 
 
 //|     delay_ms: synthio.BlockInput
@@ -165,7 +160,7 @@ MP_PROPERTY_GETSET(audiodelays_echo_delay_ms_obj,
     (mp_obj_t)&audiodelays_echo_set_delay_ms_obj);
 
 //|     decay: synthio.BlockInput
-//|     """The rate the echo decays between 0 and 1 where 1 is forever and 0 is no echo."""
+//|     """The rate the echo fades between 0 and 1 where 0 is instant and 1 is never."""
 static mp_obj_t audiodelays_echo_obj_get_decay(mp_obj_t self_in) {
     return common_hal_audiodelays_echo_get_decay(self_in);
 }
@@ -183,7 +178,7 @@ MP_PROPERTY_GETSET(audiodelays_echo_decay_obj,
     (mp_obj_t)&audiodelays_echo_set_decay_obj);
 
 //|     mix: synthio.BlockInput
-//|     """The rate the echo mix between 0 and 1 where 0 is only sample and 1 is all effect."""
+//|     """The rate the echo mix between 0 and 1 where 0 is only sample, 0.5 is an equal mix of the sample and the effect and 1 is all effect."""
 static mp_obj_t audiodelays_echo_obj_get_mix(mp_obj_t self_in) {
     return common_hal_audiodelays_echo_get_mix(self_in);
 }
@@ -224,6 +219,7 @@ MP_PROPERTY_GETSET(audiodelays_echo_freq_shift_obj,
 
 //|     playing: bool
 //|     """True when the effect is playing a sample. (read-only)"""
+//|
 static mp_obj_t audiodelays_echo_obj_get_playing(mp_obj_t self_in) {
     audiodelays_echo_obj_t *self = MP_OBJ_TO_PTR(self_in);
     check_for_deinit(self);
@@ -240,6 +236,7 @@ MP_PROPERTY_GETTER(audiodelays_echo_playing_obj,
 //|
 //|         The sample must match the encoding settings given in the constructor."""
 //|         ...
+//|
 static mp_obj_t audiodelays_echo_obj_play(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
     enum { ARG_sample, ARG_loop };
     static const mp_arg_t allowed_args[] = {
@@ -263,6 +260,7 @@ MP_DEFINE_CONST_FUN_OBJ_KW(audiodelays_echo_play_obj, 1, audiodelays_echo_obj_pl
 //|         """Stops playback of the sample. The echo continues playing."""
 //|         ...
 //|
+//|
 static mp_obj_t audiodelays_echo_obj_stop(mp_obj_t self_in) {
     audiodelays_echo_obj_t *self = MP_OBJ_TO_PTR(self_in);
 
@@ -275,7 +273,7 @@ static const mp_rom_map_elem_t audiodelays_echo_locals_dict_table[] = {
     // Methods
     { MP_ROM_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&audiodelays_echo_deinit_obj) },
     { MP_ROM_QSTR(MP_QSTR___enter__), MP_ROM_PTR(&default___enter___obj) },
-    { MP_ROM_QSTR(MP_QSTR___exit__), MP_ROM_PTR(&audiodelays_echo___exit___obj) },
+    { MP_ROM_QSTR(MP_QSTR___exit__), MP_ROM_PTR(&default___exit___obj) },
     { MP_ROM_QSTR(MP_QSTR_play), MP_ROM_PTR(&audiodelays_echo_play_obj) },
     { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&audiodelays_echo_stop_obj) },
 
@@ -285,17 +283,14 @@ static const mp_rom_map_elem_t audiodelays_echo_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_decay), MP_ROM_PTR(&audiodelays_echo_decay_obj) },
     { MP_ROM_QSTR(MP_QSTR_mix), MP_ROM_PTR(&audiodelays_echo_mix_obj) },
     { MP_ROM_QSTR(MP_QSTR_freq_shift), MP_ROM_PTR(&audiodelays_echo_freq_shift_obj) },
+    AUDIOSAMPLE_FIELDS,
 };
 static MP_DEFINE_CONST_DICT(audiodelays_echo_locals_dict, audiodelays_echo_locals_dict_table);
 
 static const audiosample_p_t audiodelays_echo_proto = {
     MP_PROTO_IMPLEMENT(MP_QSTR_protocol_audiosample)
-    .sample_rate = (audiosample_sample_rate_fun)common_hal_audiodelays_echo_get_sample_rate,
-    .bits_per_sample = (audiosample_bits_per_sample_fun)common_hal_audiodelays_echo_get_bits_per_sample,
-    .channel_count = (audiosample_channel_count_fun)common_hal_audiodelays_echo_get_channel_count,
     .reset_buffer = (audiosample_reset_buffer_fun)audiodelays_echo_reset_buffer,
     .get_buffer = (audiosample_get_buffer_fun)audiodelays_echo_get_buffer,
-    .get_buffer_structure = (audiosample_get_buffer_structure_fun)audiodelays_echo_get_buffer_structure,
 };
 
 MP_DEFINE_CONST_OBJ_TYPE(

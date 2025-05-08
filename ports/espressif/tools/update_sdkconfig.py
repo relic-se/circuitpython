@@ -1,5 +1,5 @@
 """This script updates the sdkconfigs based on the menuconfig results in a given
-   build."""
+build."""
 
 import pathlib
 import click
@@ -157,7 +157,7 @@ def sym_default(sym):
     default=False,
     help="Updates the sdkconfigs outside of the board directory.",
 )
-def update(debug, board, update_all):
+def update(debug, board, update_all):  # noqa: C901: too complex
     """Updates related sdkconfig files based on the build directory version that
     was likely modified by menuconfig."""
 
@@ -191,7 +191,7 @@ def update(debug, board, update_all):
             psram_freq = value
         elif key == "UF2_BOOTLOADER":
             uf2_bootloader = not (value == "0")
-        elif key == "CIRCUITPY_BLEIO":
+        elif key == "CIRCUITPY_BLEIO_NATIVE":
             ble_enabled = not (value == "0")
 
     os.environ["IDF_TARGET"] = target
@@ -202,7 +202,7 @@ def update(debug, board, update_all):
 
     kconfig_path = pathlib.Path(f"build-{board}/esp-idf/kconfigs.in")
 
-    kconfig_path = pathlib.Path(f"esp-idf/Kconfig")
+    kconfig_path = pathlib.Path("esp-idf/Kconfig")
     kconfig = kconfiglib.Kconfig(kconfig_path)
 
     input_config = pathlib.Path(f"build-{board}/esp-idf/sdkconfig")
@@ -230,7 +230,7 @@ def update(debug, board, update_all):
     sdkconfigs.extend((flash_size_config, flash_mode_config, flash_freq_config))
 
     if psram_size != "0":
-        psram_config = pathlib.Path(f"esp-idf-config/sdkconfig-psram.defaults")
+        psram_config = pathlib.Path("esp-idf-config/sdkconfig-psram.defaults")
         psram_size_config = pathlib.Path(f"esp-idf-config/sdkconfig-psram-{psram_size}.defaults")
         psram_mode_config = pathlib.Path(f"esp-idf-config/sdkconfig-psram-{psram_mode}.defaults")
         psram_freq_config = pathlib.Path(f"esp-idf-config/sdkconfig-psram-{psram_freq}.defaults")
@@ -238,7 +238,7 @@ def update(debug, board, update_all):
     target_config = pathlib.Path(f"esp-idf-config/sdkconfig-{target}.defaults")
     sdkconfigs.append(target_config)
     if ble_enabled:
-        ble_config = pathlib.Path(f"esp-idf-config/sdkconfig-ble.defaults")
+        ble_config = pathlib.Path("esp-idf-config/sdkconfig-ble.defaults")
         sdkconfigs.append(ble_config)
     board_config = pathlib.Path(f"boards/{board}/sdkconfig")
     # Don't include the board file in cp defaults. The board may have custom

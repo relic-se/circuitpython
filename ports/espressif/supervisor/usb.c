@@ -20,15 +20,7 @@
 #include "driver/gpio.h"
 #include "esp_private/periph_ctrl.h"
 
-#if defined(CONFIG_IDF_TARGET_ESP32C3)
-#include "components/esp_rom/include/esp32c3/rom/gpio.h"
-#elif defined(CONFIG_IDF_TARGET_ESP32C6)
-#include "components/esp_rom/include/esp32c6/rom/gpio.h"
-#elif defined(CONFIG_IDF_TARGET_ESP32S2)
-#include "components/esp_rom/include/esp32s2/rom/gpio.h"
-#elif defined(CONFIG_IDF_TARGET_ESP32S3)
-#include "components/esp_rom/include/esp32s3/rom/gpio.h"
-#endif
+#include "rom/gpio.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -89,49 +81,19 @@ void tud_cdc_rx_cb(uint8_t itf) {
 }
 #endif // CIRCUITPY_USB_DEVICE
 
-
-#if defined(CONFIG_IDF_TARGET_ESP32S3)
-// TEMPORARY WORKAROUND for https://github.com/hathach/tinyusb/issues/2943
-#include "soc/rtc_cntl_struct.h"
-#include "soc/usb_wrap_struct.h"
-#endif
-
 void init_usb_hardware(void) {
     #if CIRCUITPY_USB_DEVICE
     // Configure USB PHY
-
-    // TEMPORARY WORKAROUND for https://github.com/hathach/tinyusb/issues/2943
-    #if defined(CONFIG_IDF_TARGET_ESP32S3)
-
-    (void)phy_hdl;
-    periph_module_reset(PERIPH_USB_MODULE);
-    periph_module_enable(PERIPH_USB_MODULE);
-
-    USB_WRAP.otg_conf.pad_enable = 1;
-    // USB_OTG use internal PHY
-    USB_WRAP.otg_conf.phy_sel = 0;
-    // phy_sel is controlled by the following register value
-    RTCCNTL.usb_conf.sw_hw_usb_phy_sel = 1;
-    // phy_sel=sw_usb_phy_sel=1, USB_OTG is connected with internal PHY
-    RTCCNTL.usb_conf.sw_usb_phy_sel = 1;
-
-    gpio_set_drive_capability(USBPHY_DM_NUM, GPIO_DRIVE_CAP_3);
-    gpio_set_drive_capability(USBPHY_DP_NUM, GPIO_DRIVE_CAP_3);
-    #else
-
     usb_phy_config_t phy_conf = {
         .controller = USB_PHY_CTRL_OTG,
         .target = USB_PHY_TARGET_INT,
 
         .otg_mode = USB_OTG_MODE_DEVICE,
-        #ifdef CONFIG_IDF_TARGET_ESP32P4
-        .otg_speed = USB_PHY_SPEED_HIGH,
-        #else
-        .otg_speed = USB_PHY_SPEED_FULL,
-        #endif
+        // https://github.com/hathach/tinyusb/issues/2943#issuecomment-2601888322
+        // Set speed to undefined (auto-detect) to avoid timing/race issue with S3 with host such as macOS
+        .otg_speed = USB_PHY_SPEED_UNDEFINED,
     };
     usb_new_phy(&phy_conf, &phy_hdl);
-    #endif
 
     // Pin the USB task to the same core as CircuitPython. This way we leave
     // the other core for networking.
