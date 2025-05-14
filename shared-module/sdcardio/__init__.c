@@ -14,7 +14,11 @@
 
 #include "supervisor/filesystem.h"
 
-#ifdef DEFAULT_SD_CARD_DETECT
+#if defined(DEFAULT_SD_CARD_DETECT) || CIRCUITPY_OS_GETENV
+#ifndef DEFAULT_SD_CARD_DETECT
+#include "shared-bindings/os/__init__.h"
+#endif
+
 static digitalio_digitalinout_obj_t sd_card_detect_pin;
 static sdcardio_sdcard_obj_t sdcard;
 
@@ -24,7 +28,7 @@ fs_user_mount_t _sdcard_usermount;
 static bool _init_error = false;
 static bool _mounted = false;
 
-#ifdef DEFAULT_SD_MOSI
+#if !defined(DEFAULT_SD_CARD_DETECT) || defined(DEFAULT_SD_MOSI)
 static busio_spi_obj_t busio_spi_obj;
 #else
 #include "shared-bindings/board/__init__.h"
@@ -32,17 +36,53 @@ static busio_spi_obj_t busio_spi_obj;
 #endif
 
 void sdcardio_init(void) {
-    #ifdef DEFAULT_SD_CARD_DETECT
+    #if defined(DEFAULT_SD_CARD_DETECT) || CIRCUITPY_OS_GETENV
+    #ifndef DEFAULT_SD_CARD_DETECT
+    mp_obj_t arg = common_hal_os_getenv("CIRCUITPY_SD_CARD_DETECT", mp_const_none);
+    if (arg != mp_const_none) {
+        const mcu_pin_obj_t *pin = common_hal_digitalio_validate_pin(arg);
+    #endif
     sd_card_detect_pin.base.type = &digitalio_digitalinout_type;
+    #ifndef DEFAULT_SD_CARD_DETECT
+    common_hal_digitalio_digitalinout_construct(&sd_card_detect_pin, pin);
+    #else
     common_hal_digitalio_digitalinout_construct(&sd_card_detect_pin, DEFAULT_SD_CARD_DETECT);
+    #endif
     common_hal_digitalio_digitalinout_switch_to_input(&sd_card_detect_pin, PULL_UP);
     common_hal_digitalio_digitalinout_never_reset(&sd_card_detect_pin);
+    #ifndef DEFAULT_SD_CARD_DETECT
+    }
+    #endif
     #endif
 }
 
 void automount_sd_card(void) {
-    #ifdef DEFAULT_SD_CARD_DETECT
+    #if defined(DEFAULT_SD_CARD_DETECT) || CIRCUITPY_OS_GETENV
+    #ifndef DEFAULT_SD_CARD_DETECT
+    mp_obj_t arg_detect = common_hal_os_getenv("CIRCUITPY_SD_CARD_DETECT", mp_const_none);
+    mp_obj_t arg_mosi = common_hal_os_getenv("CIRCUITPY_SD_MOSI", mp_const_none);
+    if (arg_detect == mp_const_none || arg_mosi == mp_const_none) {
+        return;
+    }
+
+    mp_obj_t arg_sck = common_hal_os_getenv("CIRCUITPY_SD_SCK", mp_const_none);
+    mp_obj_t arg_miso = common_hal_os_getenv("CIRCUITPY_SD_MISO", mp_const_none);
+    mp_obj_t arg_cs = common_hal_os_getenv("CIRCUITPY_SD_CS", mp_const_none);
+    
+    const mcu_pin_obj_t *pin_sck = common_hal_digitalio_validate_pin(arg_sck);
+    const mcu_pin_obj_t *pin_mosi = common_hal_digitalio_validate_pin(arg_mosi);
+    const mcu_pin_obj_t *pin_miso = common_hal_digitalio_validate_pin(arg_miso);
+    const mcu_pin_obj_t *pin_cs = common_hal_digitalio_validate_pin(arg_cs);
+    
+    bool inserted = false;
+    mp_obj_t arg_inserted = common_hal_os_getenv("CIRCUITPY_SD_CARD_INSERTED", mp_const_none);
+    if (arg_inserted != mp_const_none) {
+        inserted = mp_obj_is_true(arg_inserted);
+    }
+    if (common_hal_digitalio_digitalinout_get_value(&sd_card_detect_pin) != inserted) {
+    #else
     if (common_hal_digitalio_digitalinout_get_value(&sd_card_detect_pin) != DEFAULT_SD_CARD_INSERTED) {
+    #endif
         // No card.
         _init_error = false;
         if (_mounted) {
@@ -60,7 +100,7 @@ void automount_sd_card(void) {
             }
             _sdcard_vfs.next = NULL;
 
-            #ifdef DEFAULT_SD_MOSI
+            #ifdef !defined(DEFAULT_SD_CARD_DETECT) || DEFAULT_SD_MOSI
             common_hal_busio_spi_deinit(&busio_spi_obj);
             #endif
             _mounted = false;
@@ -72,21 +112,29 @@ void automount_sd_card(void) {
     }
 
     busio_spi_obj_t *spi_obj;
-    #ifndef DEFAULT_SD_MOSI
+    #if defined(DEFAULT_SD_CARD_DETECT) && !defined(DEFAULT_SD_MOSI)
     spi_obj = MP_OBJ_TO_PTR(common_hal_board_create_spi(0));
-    #else
+    #elif !defined(DEFAULT_SD_CARD_DETECT) || defined(DEFAULT_SD_MOSI)
     spi_obj = &busio_spi_obj;
     spi_obj->base.type = &busio_spi_type;
+    #ifdef DEFAULT_SD_MOSI
     common_hal_busio_spi_construct(spi_obj, DEFAULT_SD_SCK, DEFAULT_SD_MOSI, DEFAULT_SD_MISO, false);
+    #else
+    common_hal_busio_spi_construct(spi_obj, pin_sck, pin_mosi, pin_miso, false);
+    #endif
     common_hal_busio_spi_never_reset(spi_obj);
     #endif
     sdcard.base.type = &sdcardio_SDCard_type;
+    #ifndef DEFAULT_SD_CARD_DETECT
+    mp_rom_error_text_t error = sdcardio_sdcard_construct(&sdcard, spi_obj, pin_cs, 25000000);
+    #else
     mp_rom_error_text_t error = sdcardio_sdcard_construct(&sdcard, spi_obj, DEFAULT_SD_CS, 25000000);
+    #endif
     if (error != NULL) {
         // Failed to communicate with the card.
         _mounted = false;
         _init_error = true;
-        #ifdef DEFAULT_SD_MOSI
+        #if defined(DEFAULT_SD_MOSI) || !defined(DEFAULT_SD_CARD_DETECT)
         common_hal_busio_spi_deinit(spi_obj);
         #endif
         return;
@@ -107,7 +155,7 @@ void automount_sd_card(void) {
         _mounted = false;
         _init_error = true;
         common_hal_sdcardio_sdcard_deinit(&sdcard);
-        #ifdef DEFAULT_SD_MOSI
+        #if defined(DEFAULT_SD_MOSI) || !defined(DEFAULT_SD_CARD_DETECT)
         common_hal_busio_spi_deinit(spi_obj);
         #endif
         return;
