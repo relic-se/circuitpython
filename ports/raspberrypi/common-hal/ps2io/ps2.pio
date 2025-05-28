@@ -1,0 +1,43 @@
+; This file is part of the CircuitPython project: https://circuitpython.org
+;
+; SPDX-FileCopyrightText: Copyright (c) 2025 Cooper Dalrymple
+;
+; SPDX-License-Identifier: MIT
+
+.program ps2
+
+check:
+    jmp !OSRE sendstart
+    jmp pin check       ; wait for negative clock edge
+
+    in pins 1           ; start bit
+    wait 1 pin 1
+
+    set x 9
+receive:
+    wait 0 pin 1 [1]
+    in pins 1           ; 8 data bits, parity bit, stop bit
+    wait 1 pin 1
+    jmp x-- receive
+
+    jmp check
+
+sendstart:
+    set pins 0
+    set pindirs 2 [14]  ; turn clock output and pull the line low
+    set pindirs 1 [1]   ; turn back to input and pull up will go high
+
+    set x 8
+send:
+    wait 0 pin 1 [1]
+    out pins 1          ; set data when clock is low because read on clock rise
+    wait 1 pin 1
+    jmp x-- send
+
+    wait 0 pin 1 [1]
+    set pins 1          ; stop bit
+    wait 1 pin 0
+
+    wait 0 pin 0
+    set pindirs 0       ; return data line to input
+    wait 1 pin 0 [5]

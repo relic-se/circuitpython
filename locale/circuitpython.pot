@@ -886,6 +886,10 @@ msgstr ""
 msgid "Data not supported with directed advertising"
 msgstr ""
 
+#: ports/raspberrypi/common-hal/ps2io/Ps2.c
+msgid "Data pin must precede clock pin"
+msgstr ""
+
 #: ports/espressif/common-hal/_bleio/Adapter.c
 #: ports/nordic/common-hal/_bleio/Adapter.c
 msgid "Data too large for advertisement packet"

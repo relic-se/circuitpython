@@ -23,6 +23,10 @@
 #include "audio_dma.h"
 #endif
 
+#if CIRCUITPY_PS2IO
+#include "common-hal/ps2io/Ps2.h"
+#endif
+
 #if CIRCUITPY_SSL
 #include "shared-module/ssl/__init__.h"
 #endif
