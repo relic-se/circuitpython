@@ -167,7 +167,7 @@ void common_hal_audiobusio_pdmin_construct(audiobusio_pdmin_obj_t *self,
 
     uint32_t clock_divisor = (uint32_t)roundf(48000000.0f / sample_rate / oversample);
     float mic_clock_freq = 48000000.0f / clock_divisor;
-    self->sample_rate = mic_clock_freq / oversample;
+    self->base.sample_rate = mic_clock_freq / oversample;
     if (mic_clock_freq < MIN_MIC_CLOCK || clock_divisor == 0) {
         mp_raise_ValueError(MP_ERROR_TEXT("sampling rate out of range"));
     }
@@ -220,7 +220,7 @@ void common_hal_audiobusio_pdmin_construct(audiobusio_pdmin_obj_t *self,
     gpio_set_pin_function(self->data_pin->number, GPIO_I2S_FUNCTION);
 
     self->bytes_per_sample = oversample >> 3;
-    self->bit_depth = bit_depth;
+    self->base.bits_per_sample = bit_depth;
 }
 
 bool common_hal_audiobusio_pdmin_deinited(audiobusio_pdmin_obj_t *self) {
@@ -244,14 +244,6 @@ void common_hal_audiobusio_pdmin_deinit(audiobusio_pdmin_obj_t *self) {
     reset_pin_number(self->data_pin->number);
     self->clock_pin = NULL;
     self->data_pin = NULL;
-}
-
-uint8_t common_hal_audiobusio_pdmin_get_bit_depth(audiobusio_pdmin_obj_t *self) {
-    return self->bit_depth;
-}
-
-uint32_t common_hal_audiobusio_pdmin_get_sample_rate(audiobusio_pdmin_obj_t *self) {
-    return self->sample_rate;
 }
 
 static void setup_dma(audiobusio_pdmin_obj_t *self, uint32_t length,
@@ -439,7 +431,7 @@ uint32_t common_hal_audiobusio_pdmin_record_to_buffer(audiobusio_pdmin_obj_t *se
         for (uint32_t i = 0; i < samples_to_process; i++) {
             // Call filter_sample just one place so it can be inlined.
             uint16_t value = filter_sample(buffer + i * words_per_sample);
-            if (self->bit_depth == 8) {
+            if (audiosample_get_bits_per_sample(self) == 8) {
                 // Truncate to 8 bits.
                 ((uint8_t *)output_buffer)[values_output] = value >> 8;
             } else {

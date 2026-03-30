@@ -27,7 +27,7 @@ void common_hal_audiobusio_pdmin_construct(audiobusio_pdmin_obj_t *self,
     uint8_t bit_depth,
     bool mono,
     uint8_t oversample) {
-    self->sample_rate = sample_rate;
+    self->base.sample_rate = sample_rate;
     self->mono = mono;
     self->oversample = oversample;
     self->recording_complete = true;
@@ -104,14 +104,6 @@ void common_hal_audiobusio_pdmin_deinit(audiobusio_pdmin_obj_t *self) {
     }
 
 
-}
-
-uint8_t common_hal_audiobusio_pdmin_get_bit_depth(audiobusio_pdmin_obj_t *self) {
-    return 16;
-}
-
-uint32_t common_hal_audiobusio_pdmin_get_sample_rate(audiobusio_pdmin_obj_t *self) {
-    return 16000;
 }
 
 static bool pdm_data_available(MemsAudio_STM32L4SAIPDM *impl, uint8_t *pdmBuffer, size_t pdmBufferLength) {

@@ -71,8 +71,8 @@ void common_hal_audiobusio_pdmin_construct(audiobusio_pdmin_obj_t *self,
     claim_pin(clock_pin);
     claim_pin(data_pin);
 
-    self->sample_rate = sample_rate;
-    self->bit_depth = bit_depth;
+    self->base.sample_rate = sample_rate;
+    self->base.bits_per_sample = bit_depth;
 }
 
 bool common_hal_audiobusio_pdmin_deinited(audiobusio_pdmin_obj_t *self) {
@@ -112,18 +112,10 @@ uint32_t common_hal_audiobusio_pdmin_record_to_buffer(audiobusio_pdmin_obj_t *se
 //      mp_printf(MP_PYTHON_PRINTER, "Copying bytes to buffer\n");
 
     size_t result = 0;
-    size_t elementSize = common_hal_audiobusio_pdmin_get_bit_depth(self) / 8;
+    size_t elementSize = audiosample_get_bits_per_sample(self) / 8;
     esp_err_t err = i2s_channel_read(self->rx_chan, buffer, length * elementSize, &result, 100);
     CHECK_ESP_RESULT(err);
     return result;
-}
-
-uint8_t common_hal_audiobusio_pdmin_get_bit_depth(audiobusio_pdmin_obj_t *self) {
-    return self->bit_depth;
-}
-
-uint32_t common_hal_audiobusio_pdmin_get_sample_rate(audiobusio_pdmin_obj_t *self) {
-    return self->sample_rate;
 }
 
 #endif

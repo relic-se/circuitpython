@@ -14,6 +14,7 @@
 #include "shared-bindings/microcontroller/Pin.h"
 #include "shared-bindings/audiobusio/PDMIn.h"
 #include "shared-bindings/util.h"
+#include "shared-bindings/audiocore/__init__.h"
 
 //| class PDMIn:
 //|     """Record an input PDM audio stream"""
@@ -180,7 +181,7 @@ static mp_obj_t audiobusio_pdmin_obj_record(mp_obj_t self_obj, mp_obj_t destinat
     if (bufinfo.len / mp_binary_get_size('@', bufinfo.typecode, NULL) < length) {
         mp_raise_ValueError(MP_ERROR_TEXT("Destination capacity is smaller than destination_length."));
     }
-    uint8_t bit_depth = common_hal_audiobusio_pdmin_get_bit_depth(self);
+    uint8_t bit_depth = audiosample_get_bits_per_sample(self);
     if (bufinfo.typecode != 'H' && bit_depth == 16) {
         mp_raise_ValueError(MP_ERROR_TEXT("destination buffer must be an array of type 'H' for bit_depth = 16"));
     } else if (bufinfo.typecode != 'B' && bufinfo.typecode != BYTEARRAY_TYPECODE && bit_depth == 8) {
@@ -193,21 +194,6 @@ static mp_obj_t audiobusio_pdmin_obj_record(mp_obj_t self_obj, mp_obj_t destinat
 }
 MP_DEFINE_CONST_FUN_OBJ_3(audiobusio_pdmin_record_obj, audiobusio_pdmin_obj_record);
 
-//|     sample_rate: int
-//|     """The actual sample_rate of the recording. This may not match the constructed
-//|     sample rate due to internal clock limitations."""
-//|
-//|
-static mp_obj_t audiobusio_pdmin_obj_get_sample_rate(mp_obj_t self_in) {
-    audiobusio_pdmin_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    check_for_deinit(self);
-    return MP_OBJ_NEW_SMALL_INT(common_hal_audiobusio_pdmin_get_sample_rate(self));
-}
-MP_DEFINE_CONST_FUN_OBJ_1(audiobusio_pdmin_get_sample_rate_obj, audiobusio_pdmin_obj_get_sample_rate);
-
-MP_PROPERTY_GETTER(audiobusio_pdmin_sample_rate_obj,
-    (mp_obj_t)&audiobusio_pdmin_get_sample_rate_obj);
-
 static const mp_rom_map_elem_t audiobusio_pdmin_locals_dict_table[] = {
     // Methods
     { MP_ROM_QSTR(MP_QSTR___del__), MP_ROM_PTR(&audiobusio_pdmin_deinit_obj) },
@@ -215,9 +201,17 @@ static const mp_rom_map_elem_t audiobusio_pdmin_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR___enter__), MP_ROM_PTR(&default___enter___obj) },
     { MP_ROM_QSTR(MP_QSTR___exit__), MP_ROM_PTR(&default___exit___obj) },
     { MP_ROM_QSTR(MP_QSTR_record), MP_ROM_PTR(&audiobusio_pdmin_record_obj) },
-    { MP_ROM_QSTR(MP_QSTR_sample_rate), MP_ROM_PTR(&audiobusio_pdmin_sample_rate_obj) }
+
+    // Properties
+    AUDIOSAMPLE_FIELDS,
 };
 static MP_DEFINE_CONST_DICT(audiobusio_pdmin_locals_dict, audiobusio_pdmin_locals_dict_table);
+
+static const audiosample_p_t audiobusio_pdmin_proto = {
+    MP_PROTO_IMPLEMENT(MP_QSTR_protocol_audiosample)
+    .reset_buffer = (audiosample_reset_buffer_fun)audiobusio_pdmin_reset_buffer,
+    .get_buffer = (audiosample_get_buffer_fun)audiobusio_pdmin_get_buffer,
+};
 #endif
 
 MP_DEFINE_CONST_OBJ_TYPE(
@@ -226,6 +220,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     MP_TYPE_FLAG_HAS_SPECIAL_ACCESSORS,
     make_new, audiobusio_pdmin_make_new
     #if CIRCUITPY_AUDIOBUSIO_PDMIN
-    , locals_dict, &audiobusio_pdmin_locals_dict
+    , locals_dict, &audiobusio_pdmin_locals_dict,
+    protocol, &audiobusio_pdmin_proto
     #endif
     );

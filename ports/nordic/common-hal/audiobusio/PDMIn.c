@@ -62,14 +62,6 @@ void common_hal_audiobusio_pdmin_deinit(audiobusio_pdmin_obj_t *self) {
     self->data_pin_number = NO_PIN;
 }
 
-uint8_t common_hal_audiobusio_pdmin_get_bit_depth(audiobusio_pdmin_obj_t *self) {
-    return 16;
-}
-
-uint32_t common_hal_audiobusio_pdmin_get_sample_rate(audiobusio_pdmin_obj_t *self) {
-    return 16000;
-}
-
 uint32_t common_hal_audiobusio_pdmin_record_to_buffer(audiobusio_pdmin_obj_t *self,
     uint16_t *output_buffer, uint32_t output_buffer_length) {
     // Note: Adafruit's module has SELECT pulled to GND, which makes the DATA

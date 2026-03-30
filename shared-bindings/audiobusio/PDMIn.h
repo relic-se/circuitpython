@@ -20,7 +20,5 @@ void common_hal_audiobusio_pdmin_deinit(audiobusio_pdmin_obj_t *self);
 bool common_hal_audiobusio_pdmin_deinited(audiobusio_pdmin_obj_t *self);
 uint32_t common_hal_audiobusio_pdmin_record_to_buffer(audiobusio_pdmin_obj_t *self,
     uint16_t *buffer, uint32_t length);
-uint8_t common_hal_audiobusio_pdmin_get_bit_depth(audiobusio_pdmin_obj_t *self);
-uint32_t common_hal_audiobusio_pdmin_get_sample_rate(audiobusio_pdmin_obj_t *self);
 // TODO(tannewt): Add record to file
 #endif
