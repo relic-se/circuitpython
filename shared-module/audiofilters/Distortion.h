@@ -11,6 +11,11 @@
 #include "shared-module/audiocore/__init__.h"
 #include "shared-module/synthio/block.h"
 
+#define FUZZ_MAX_VALUE ((1 << 15) - 1)
+#define FUZZ_MIN_THRESHOLD (FUZZ_MAX_VALUE >> 4)
+#define FUZZ_MAX_THRESHOLD (FUZZ_MAX_VALUE >> 12)
+#define FUZZ_MAP(x, in_min, in_max, out_min, out_max) ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
+
 typedef enum {
     DISTORTION_MODE_CLIP,
     DISTORTION_MODE_LOFI,

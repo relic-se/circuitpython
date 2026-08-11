@@ -241,12 +241,15 @@ audioio_get_buffer_result_t audiofilters_distortion_get_buffer(audiofilters_dist
 
             // Modify drive value depending on mode
             uint32_t word_mask = 0;
+            int32_t threshold = 0;
             if (self->mode == DISTORTION_MODE_CLIP) {
                 drive = MICROPY_FLOAT_CONST(1.0001) - drive;
             } else if (self->mode == DISTORTION_MODE_WAVESHAPE) {
                 drive = MICROPY_FLOAT_CONST(2.0) * drive / (MICROPY_FLOAT_CONST(1.0001) - drive);
             } else if (self->mode == DISTORTION_MODE_LOFI) {
                 word_mask = 0xFFFFFFFF ^ ((1 << (uint32_t)MICROPY_FLOAT_C_FUN(round)(drive * MICROPY_FLOAT_CONST(14.0))) - 1);
+            } else if (self->mode == DISTORTION_MODE_FUZZ) {
+                threshold = (int32_t)MICROPY_FLOAT_C_FUN(round)(drive * (FUZZ_MAX_THRESHOLD - FUZZ_MIN_THRESHOLD)) + FUZZ_MIN_THRESHOLD;
             }
 
             if (mix <= MICROPY_FLOAT_CONST(0.01)) { // if mix is zero pure sample only
@@ -274,12 +277,14 @@ audioio_get_buffer_result_t audiofilters_distortion_get_buffer(audiofilters_dist
                     // Apply pre-gain
                     int32_t word = (int32_t)(sample_word * pre_gain);
 
-                    // Apply bit mask before converting to float
+                    // Apply bit mask or range map before converting to float
                     if (self->mode == DISTORTION_MODE_LOFI) {
                         word = word & word_mask;
+                    } else if (self->mode == DISTORTION_MODE_FUZZ) {
+                        word = FUZZ_MAP(word, -threshold, threshold, -FUZZ_MAX_VALUE, FUZZ_MAX_VALUE);
                     }
 
-                    if (self->mode != DISTORTION_MODE_LOFI || self->soft_clip) {
+                    if ((self->mode != DISTORTION_MODE_LOFI && self->mode != DISTORTION_MODE_FUZZ) || self->soft_clip) {
                         // Convert sample to float
                         mp_float_t wordf = word / MICROPY_FLOAT_CONST(32768.0);
 
