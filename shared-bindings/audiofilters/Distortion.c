@@ -32,18 +32,23 @@
 //|     WAVESHAPE: DistortionMode
 //|     """Waveshaper distortions are used mainly by electronic musicians to achieve an extra-abrasive sound."""
 //|
+//|     FUZZ: DistortionMode
+//|     """Generate a fuzz effect using integer range mapping."""
+//|
 //|
 
 MAKE_ENUM_VALUE(audiofilters_distortion_mode_type, distortion_mode, CLIP, DISTORTION_MODE_CLIP);
 MAKE_ENUM_VALUE(audiofilters_distortion_mode_type, distortion_mode, LOFI, DISTORTION_MODE_LOFI);
 MAKE_ENUM_VALUE(audiofilters_distortion_mode_type, distortion_mode, OVERDRIVE, DISTORTION_MODE_OVERDRIVE);
 MAKE_ENUM_VALUE(audiofilters_distortion_mode_type, distortion_mode, WAVESHAPE, DISTORTION_MODE_WAVESHAPE);
+MAKE_ENUM_VALUE(audiofilters_distortion_mode_type, distortion_mode, FUZZ, DISTORTION_MODE_FUZZ);
 
 MAKE_ENUM_MAP(audiofilters_distortion_mode) {
     MAKE_ENUM_MAP_ENTRY(distortion_mode, CLIP),
     MAKE_ENUM_MAP_ENTRY(distortion_mode, LOFI),
     MAKE_ENUM_MAP_ENTRY(distortion_mode, OVERDRIVE),
     MAKE_ENUM_MAP_ENTRY(distortion_mode, WAVESHAPE),
+    MAKE_ENUM_MAP_ENTRY(distortion_mode, FUZZ),
 };
 
 static MP_DEFINE_CONST_DICT(audiofilters_distortion_mode_locals_dict, audiofilters_distortion_mode_locals_table);

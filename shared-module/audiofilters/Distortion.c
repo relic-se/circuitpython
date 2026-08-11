@@ -302,6 +302,8 @@ audioio_get_buffer_result_t audiofilters_distortion_get_buffer(audiofilters_dist
                             case DISTORTION_MODE_WAVESHAPE: {
                                 wordf = (MICROPY_FLOAT_CONST(1.0) + drive) * wordf / (MICROPY_FLOAT_CONST(1.0) + drive * MICROPY_FLOAT_C_FUN(fabs)(wordf));
                             } break;
+                            case DISTORTION_MODE_FUZZ:
+                                break;
                         }
 
                         // Apply post-gain

@@ -16,6 +16,7 @@ typedef enum {
     DISTORTION_MODE_LOFI,
     DISTORTION_MODE_OVERDRIVE,
     DISTORTION_MODE_WAVESHAPE,
+    DISTORTION_MODE_FUZZ,
 } audiofilters_distortion_mode;
 
 extern const mp_obj_type_t audiofilters_distortion_type;
